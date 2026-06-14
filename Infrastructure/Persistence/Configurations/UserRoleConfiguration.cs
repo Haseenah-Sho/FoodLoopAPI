@@ -22,7 +22,7 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasData(new UserRole
             {
                 UserId = Guid.Parse("E01837EE-E5C5-48DB-98C2-CDC266139856"),
-                RoleId = Guid.Parse("C1C510C0-0434-496A-AE87-5FA5F850F0B"),
+                RoleId = Guid.Parse("8FD747F8-4405-4E39-8A89-766807C86A5A"),
             });
         }
     }

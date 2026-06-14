@@ -21,7 +21,7 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasData(
                 new Role
                 {
-                    Id = Guid.Parse("C1C510C0-0434-496A-AE87-5FA5F850F0B"),
+                    Id = Guid.Parse("8FD747F8-4405-4E39-8A89-766807C86A5A"),
                     Name = AppRoles.Admin,
                     CreatedBy = "admin@gmail.com",
                     DateCreated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),

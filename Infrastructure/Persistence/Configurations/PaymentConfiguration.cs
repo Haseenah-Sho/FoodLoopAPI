@@ -19,7 +19,7 @@ namespace Infrastructure.Persistence.Configurations
                 .HasConversion<string>();
 
             builder.Property(p => p.PaidAt)
-                .IsRequired();
+                .IsRequired(false);
 
             builder.HasOne(p => p.User)
                 .WithMany()

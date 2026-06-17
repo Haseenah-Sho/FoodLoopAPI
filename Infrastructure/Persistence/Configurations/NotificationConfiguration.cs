@@ -28,6 +28,8 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasConversion<string>();
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasOne(n => n.User)
                 .WithMany(u => u.Notifications)
                 .HasForeignKey(n => n.UserId)

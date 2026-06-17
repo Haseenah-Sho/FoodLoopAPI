@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using static Application.Features.Vendors.Commands.RegisterVendor;
+using static Application.Commands.RegisterVendor;
 
 public static class ServiceCollectionExtensions
 {

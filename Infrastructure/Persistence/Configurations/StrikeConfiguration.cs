@@ -14,6 +14,8 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(500);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasOne(s => s.User)
                 .WithMany(u => u.Strikes)
                 .HasForeignKey(s => s.UserId)

@@ -47,6 +47,8 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasConversion<string>();
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasMany(l => l.Ratings)
                 .WithOne(r => r.Listing)
                 .HasForeignKey(r => r.ListingId)

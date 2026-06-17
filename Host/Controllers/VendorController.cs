@@ -2,9 +2,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static Application.Features.Vendors.Commands.ApproveRejectVendor;
-using static Application.Features.Vendors.Commands.RegisterVendor;
-using static Application.Features.Vendors.Queries.GetPendingVendors;
+using static Application.Commands.ApproveRejectVendor;
+using static Application.Commands.RegisterVendor;
+using static Application.Queries.GetPendingVendors;
 
 namespace Host.Controllers
 {
@@ -19,7 +19,7 @@ namespace Host.Controllers
             var result = await mediator.Send(command);
             return Ok(result);
         }
-
+         
         [HttpPut("approve-reject")]
         [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> ApproveReject(

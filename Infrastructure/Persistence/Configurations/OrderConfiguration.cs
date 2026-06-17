@@ -33,6 +33,8 @@ namespace Infrastructure.Persistence.Configurations
                 .HasMaxLength(300)
                 .IsRequired(false);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasOne(o => o.Payment)
                 .WithOne(p => p.Order)
                 .HasForeignKey<Payment>(p => p.OrderId)

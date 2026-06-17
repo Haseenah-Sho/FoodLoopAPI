@@ -21,6 +21,8 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(p => p.PaidAt)
                 .IsRequired(false);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasOne(p => p.User)
                 .WithMany()
                 .HasForeignKey(p => p.UserId)

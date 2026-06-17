@@ -36,6 +36,8 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(u => u.IsEmailVerified)
                 .HasDefaultValue(false);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasData(new User
             {
                 Id = Guid.Parse("E01837EE-E5C5-48DB-98C2-CDC266139856"),

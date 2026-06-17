@@ -6,7 +6,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace Application.Features.Auth.Commands
+namespace Application.Commands
 {
     public class Login
     {

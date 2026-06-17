@@ -7,7 +7,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace Application.Features.Customers.Commands
+namespace Application.Commands
 {
     public class RegisterCustomer
     {
@@ -146,6 +146,10 @@ namespace Application.Features.Customers.Commands
 
                     await unitOfWork.SaveAsync();
 
+                    await unitOfWork.SaveAsync();
+
+                    await unitOfWork.SaveAsync();
+
                     try
                     {
                         await emailService.SendVerificationEmailAsync(
@@ -153,7 +157,7 @@ namespace Application.Features.Customers.Commands
                     }
                     catch (Exception)
                     {
-                        // I cannot send email, but registration succeeded
+                        // Email failed but registration successful
                     }
 
                     return BaseResponse<RegisterCustomerResponse>.Success(

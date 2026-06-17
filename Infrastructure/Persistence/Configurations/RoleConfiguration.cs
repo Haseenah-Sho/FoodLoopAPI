@@ -15,6 +15,8 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(50);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasIndex(r => r.Name)
                 .IsUnique();
 

@@ -3,7 +3,7 @@ using Application.Repositories;
 using FluentValidation;
 using MediatR;
 
-namespace Application.Features.Vendors.Commands
+namespace Application.Commands
 {
     public class ApproveRejectVendor
     {

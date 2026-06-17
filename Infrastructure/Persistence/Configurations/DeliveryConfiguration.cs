@@ -27,6 +27,8 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(d => d.DeliveredAt)
                 .IsRequired(false);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
         }
     }
 }

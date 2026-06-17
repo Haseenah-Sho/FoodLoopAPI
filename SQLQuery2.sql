@@ -1,0 +1,1 @@
+SELECT Email, VerificationToken, VerificationTokenExpiryTime, IsEmailVerified FROM Users WHERE Email = 'string@gmail.com'

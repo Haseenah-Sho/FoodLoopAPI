@@ -18,7 +18,9 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(300);
 
-            
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
+
             builder.HasOne(c => c.User)
                 .WithOne(u => u.Customer)
                 .HasForeignKey<Customer>(c => c.UserId)

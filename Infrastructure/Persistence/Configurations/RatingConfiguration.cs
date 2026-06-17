@@ -17,6 +17,8 @@ namespace Infrastructure.Persistence.Configurations
                 .HasMaxLength(1000)
                 .IsRequired(false);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasOne(r => r.Vendor)
                 .WithMany(v => v.Ratings)
                 .HasForeignKey(r => r.VendorId)

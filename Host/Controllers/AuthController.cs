@@ -1,8 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using static Application.Features.Auth.Commands.Login;
-using static Application.Features.Customers.Commands.RegisterCustomer;
-using static Application.Features.Customers.Commands.VerifyEmail;
+using static Application.Commands.ForgotPassword;
+using static Application.Commands.Login;
+using static Application.Commands.RegisterCustomer;
+using static Application.Commands.ResendVerificationToken;
+using static Application.Commands.ResetPassword;
+using static Application.Commands.VerifyEmail;
 
 namespace Host.Controllers
 {
@@ -26,9 +29,33 @@ namespace Host.Controllers
             return Ok(result);
         }
 
+        [HttpPost("resend-verification-token")]
+        public async Task<IActionResult> ResendVerificationToken(
+            [FromBody] ResendVerificationTokenCommand command)
+        {
+            var result = await mediator.Send(command);
+            return Ok(result);
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(
             [FromBody] LoginCommand command)
+        {
+            var result = await mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(
+            [FromBody] ForgotPasswordCommand command)
+        {
+            var result = await mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(
+            [FromBody] ResetPasswordCommand command)
         {
             var result = await mediator.Send(command);
             return Ok(result);

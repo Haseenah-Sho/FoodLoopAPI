@@ -2,7 +2,7 @@
 using Application.Repositories;
 using MediatR;
 
-namespace Application.Features.Vendors.Queries
+namespace Application.Queries
 {
     public class GetPendingVendors
     {

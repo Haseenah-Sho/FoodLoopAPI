@@ -21,6 +21,8 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(v => v.IsApproved)
                 .HasDefaultValue(false);
 
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
             builder.HasOne(v => v.User)
                 .WithOne(u => u.Vendor)
                 .HasForeignKey<Vendor>(v => v.UserId)

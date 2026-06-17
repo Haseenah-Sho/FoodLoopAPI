@@ -6,13 +6,14 @@ using Domain.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using static Application.Features.Vendors.Commands.RegisterVendor.RegisterVendorHandler;
+using static Application.Commands.RegisterVendor.RegisterVendorHandler;
 
-namespace Application.Features.Vendors.Commands
+namespace Application.Commands
 {
     public class RegisterVendor
     {
         public record RegisterVendorCommand(
+            string FullName,
             string OrganizationName,
             string PhoneNumber,
             string Email,
@@ -108,6 +109,7 @@ namespace Application.Features.Vendors.Commands
 
                     var user = new User
                     {
+                        FullName = request.FullName,
                         UserName = request.Email,
                         Email = request.Email,
                         IsEmailVerified = false,

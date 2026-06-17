@@ -2,14 +2,15 @@
 using Application.Repositories;
 using FluentValidation;
 using MediatR;
+using static Application.Commands.VerifyEmail.VerifyEmailHandler;
 
-namespace Application.Features.Customers.Commands
+namespace Application.Commands
 {
     public class VerifyEmail
     {
         public record VerifyEmailCommand(
             string Email,
-            string Token) : IRequest<BaseResponse<string>>;
+            string Token) : IRequest<BaseResponse<VerifyEmailResponse>>;
 
         public class VerifyEmailValidator : AbstractValidator<VerifyEmailCommand>
         {
@@ -27,9 +28,9 @@ namespace Application.Features.Customers.Commands
         public class VerifyEmailHandler(
             IUserRepository userRepository,
             IUnitOfWork unitOfWork)
-            : IRequestHandler<VerifyEmailCommand, BaseResponse<string>>
+            : IRequestHandler<VerifyEmailCommand, BaseResponse<VerifyEmailResponse>>
         {
-            public async Task<BaseResponse<string>> Handle(
+            public async Task<BaseResponse<VerifyEmailResponse>> Handle(
                 VerifyEmailCommand request,
                 CancellationToken cancellationToken)
             {
@@ -37,16 +38,16 @@ namespace Application.Features.Customers.Commands
                 {
                     var user = await userRepository.GetAsync(request.Email);
                     if (user is null)
-                        return BaseResponse<string>.Failure("User not found.");
+                        return BaseResponse<VerifyEmailResponse>.Failure("User not found.");
 
                     if (user.IsEmailVerified)
-                        return BaseResponse<string>.Failure("Email is already verified.");
+                        return BaseResponse<VerifyEmailResponse>.Failure("Email is already verified.");
 
                     if (user.VerificationToken != request.Token)
-                        return BaseResponse<string>.Failure("Invalid verification token.");
+                        return BaseResponse<VerifyEmailResponse>.Failure("Invalid verification token.");
 
                     if (user.VerificationTokenExpiryTime < DateTime.UtcNow)
-                        return BaseResponse<string>.Failure(
+                        return BaseResponse<VerifyEmailResponse>.Failure(
                             "Verification token has expired. Please request a new one.");
 
                     user.IsEmailVerified = true;
@@ -57,16 +58,17 @@ namespace Application.Features.Customers.Commands
                     userRepository.Update(user);
                     await unitOfWork.SaveAsync();
 
-                    return BaseResponse<string>.Success(
+                    return BaseResponse<VerifyEmailResponse>.Success(
                         "Email verified successfully. You can now log in.",
-                        user.Id.ToString());
+                        new VerifyEmailResponse(user.Id.ToString()));
                 }
                 catch (Exception ex)
                 {
-                    return BaseResponse<string>.Failure(
+                    return BaseResponse<VerifyEmailResponse>.Failure(
                         $"An error occurred during email verification: {ex.Message}");
                 }
             }
+            public record VerifyEmailResponse(string Email);
         }
     }
 }

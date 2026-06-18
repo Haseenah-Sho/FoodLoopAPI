@@ -42,7 +42,7 @@ namespace Application.Commands
                         return BaseResponse<ForgotPasswordResponse>.Failure(
                             "Your email address has not been verified.");
 
-                    string resetToken = new Random().Next(1000, 9999).ToString();
+                    string resetToken = new Random().Next(100000, 999999).ToString();
 
                     user.VerificationToken = resetToken;
                     user.VerificationTokenExpiryTime = DateTime.UtcNow.AddMinutes(45);

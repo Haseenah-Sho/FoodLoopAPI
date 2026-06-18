@@ -1,4 +1,6 @@
-﻿using Application.Common.Models;
+﻿using Application.Common.Behaviours;
+using Application.Common.Behaviours.ValidationBehaviour;
+using Application.Common.Models;
 using Application.Repositories;
 using Application.Services;
 using Domain.Entities;
@@ -8,6 +10,7 @@ using Infrastructure.Persistence.Repositories;
 using Infrastructure.Services;
 using Mapster;
 using MapsterMapper;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -74,10 +77,10 @@ public static class ServiceCollectionExtensions
         // Scans Application assembly for all AbstractValidator implementations
         services.AddValidatorsFromAssembly(typeof(RegisterVendorCommand).Assembly);
 
-        //// Runs validators automatically before every handler
-        //services.AddTransient(
-        //    typeof(IPipelineBehavior<,>),
-        //    typeof(ValidationBehaviour<,>));
+        // Runs validators automatically before every handler
+        services.AddTransient(
+            typeof(IPipelineBehavior<,>),
+            typeof(ValidationBehaviour<,>));
 
         // Mapster
         var config = TypeAdapterConfig.GlobalSettings;

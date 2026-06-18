@@ -28,7 +28,7 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(u => u.VerificationToken)
-                .HasMaxLength(4);
+                .HasMaxLength(6);
 
             builder.Property(u => u.VerificationTokenExpiryTime)
                 .IsRequired(false);

@@ -1,4 +1,5 @@
 ﻿using Application.Common.Dtos;
+using Application.Constants;
 using Application.Repositories;
 using Application.Services;
 using Domain.Entities;
@@ -29,6 +30,7 @@ namespace Application.Commands
 
         public class LoginHandler(
             IUserRepository userRepository,
+            IVendorRepository vendorRepository,
             IJwtService jwtService,
             IPasswordHasher<User> passwordHasher)
             : IRequestHandler<LoginCommand, BaseResponse<LoginResponse>>
@@ -59,6 +61,14 @@ namespace Application.Commands
                         .Select(ur => ur.Role.Name)
                         .ToList();
 
+                    bool? vendorApproved = null;
+
+                    if (roles.Contains(AppRoles.Vendor))
+                    {
+                        var vendor = await vendorRepository.GetVendorByUserIdAsync(user.Id);
+                        vendorApproved = vendor?.IsApproved ?? false;
+                    }
+
                     var token = jwtService.GenerateToken(user, roles);
 
                     return BaseResponse<LoginResponse>.Success(
@@ -68,6 +78,7 @@ namespace Application.Commands
                             user.FullName ?? user.UserName,
                             user.Email,
                             roles,
+                            vendorApproved,
                             token));
                 }
                 catch (Exception ex)
@@ -83,6 +94,7 @@ namespace Application.Commands
             string Name,
             string Email,
             IList<string> Roles,
+            bool? VendorApproved,
             string Token);
     }
 }

@@ -69,7 +69,7 @@ namespace Application.Commands
                         return BaseResponse<RegisterVendorResponse>.Failure(
                             "Vendor role not found. Please contact support.");
 
-                    string verificationToken = new Random().Next(1000, 9999).ToString();
+                    string verificationToken = new Random().Next(100000, 999999).ToString();
 
                     var userExists = await userRepository.GetAsync(request.Email);
 

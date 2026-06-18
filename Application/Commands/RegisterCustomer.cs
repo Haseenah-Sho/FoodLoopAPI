@@ -146,10 +146,6 @@ namespace Application.Commands
 
                     await unitOfWork.SaveAsync();
 
-                    await unitOfWork.SaveAsync();
-
-                    await unitOfWork.SaveAsync();
-
                     try
                     {
                         await emailService.SendVerificationEmailAsync(

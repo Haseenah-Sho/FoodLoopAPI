@@ -40,7 +40,7 @@ namespace Application.Commands
                     if (user.IsEmailVerified)
                         return BaseResponse<ResendVerificationTokenResponse>.Failure("Email is already verified.");
 
-                    string verificationToken = new Random().Next(1000, 9999).ToString();
+                    string verificationToken = new Random().Next(100000, 999999).ToString();
 
                     user.VerificationToken = verificationToken;
                     user.VerificationTokenExpiryTime = DateTime.UtcNow.AddHours(24);

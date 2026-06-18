@@ -2,11 +2,19 @@
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
-public class CurrentUser(IHttpContextAccessor context) : ICurrentUser
+namespace Infrastructure.Persistence.Repositories
 {
-    public Guid GetCurrentUser()
+    public class CurrentUser(IHttpContextAccessor context) : ICurrentUser
     {
-        var sub = context.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return Guid.Parse(sub);
+        public Guid GetCurrentUser()
+        {
+            var sub = context.HttpContext?.User?
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(sub) || !Guid.TryParse(sub, out var userId))
+                throw new UnauthorizedAccessException("User is not authenticated.");
+
+            return userId;
+        }
     }
 }

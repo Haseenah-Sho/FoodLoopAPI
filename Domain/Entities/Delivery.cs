@@ -6,7 +6,7 @@ namespace Domain.Entities
     {
         public Guid OrderId { get; set; }
         public Order Order { get; set; } = default!;
-        public string DeliveryAddress { get; set; } = default!;
+        public string? DeliveryAddress { get; set; } = default!;
         public decimal Fee { get; set; }
         public DeliveryStatus Status { get; set; }
         public DateTime? DispatchedAt { get; set; }

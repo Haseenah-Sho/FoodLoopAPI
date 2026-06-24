@@ -13,6 +13,7 @@ namespace Infrastructure.Persistence.Context
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<Listing> Listings { get; set; }
+        public DbSet<ListingImage> ListingImages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderListing> OrderListings { get; set; }

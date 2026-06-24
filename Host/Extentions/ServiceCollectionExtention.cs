@@ -52,9 +52,13 @@ public static class ServiceCollectionExtensions
     }
 
     public static IServiceCollection AddApplicationServices(
-        this IServiceCollection services)
+    this IServiceCollection services)
     {
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IFileUploadService, FileUploadService>();
+        services.AddSignalR();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IEmailService, EmailService>();
         return services;
     }
@@ -69,20 +73,16 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMediatRWithBehaviours(
         this IServiceCollection services)
     {
-        // Scans Application assembly for all IRequestHandler implementations
         services.AddMediatR(cfg =>
         cfg.RegisterServicesFromAssembly(
         typeof(RegisterVendorCommand).Assembly));
 
-        // Scans Application assembly for all AbstractValidator implementations
         services.AddValidatorsFromAssembly(typeof(RegisterVendorCommand).Assembly);
 
-        // Runs validators automatically before every handler
         services.AddTransient(
             typeof(IPipelineBehavior<,>),
             typeof(ValidationBehaviour<,>));
 
-        // Mapster
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan(typeof(RegisterVendorCommand).Assembly);
         services.AddSingleton(config);

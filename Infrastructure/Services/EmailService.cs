@@ -34,6 +34,17 @@ namespace Infrastructure.Services
             await SendEmailAsync(toEmail, subject, body);
         }
 
+        public async Task SendOrderStatusEmailAsync(string toEmail, string orderNo, string statusTitle, string statusMessage)
+        {
+            var subject = $"FoodLoop: {statusTitle} — {orderNo}";
+            var body = $@"
+                <h2>{statusTitle}</h2>
+                <p>{statusMessage}</p>
+                <p><strong>Order Number:</strong> {orderNo}</p>";
+
+            await SendEmailAsync(toEmail, subject, body);
+        }
+
         private async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var fromEmail = configuration["EmailSettings:From"]!;

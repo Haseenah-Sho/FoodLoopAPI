@@ -1,6 +1,8 @@
 ﻿using Application.Common.Dtos;
 using Application.Repositories;
+using FluentValidation;
 using MediatR;
+using static Application.Commands.RegisterVendor;
 
 namespace Application.Commands
 {
@@ -10,6 +12,17 @@ namespace Application.Commands
             Guid UserId,
             string OrganizationName,
             string PhoneNumber) : IRequest<BaseResponse<UpdateVendorProfileResponse>>;
+
+        public class UpdateVendorProfileValidator : AbstractValidator<UpdateVendorProfileCommand>
+        {
+            public UpdateVendorProfileValidator()
+            {
+                RuleFor(x => x.PhoneNumber)
+                    .NotEmpty().WithMessage("Phone number is required.")
+                    .Matches(@"^(\+?\d{1,3}[-\s]?)?0?\d{10}$")
+                    .WithMessage("Enter a valid phone number.");
+            }
+        }
 
         public class UpdateVendorProfileHandler(
             IVendorRepository vendorRepository,

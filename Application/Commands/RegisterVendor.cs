@@ -29,10 +29,9 @@ namespace Application.Commands
                     .MaximumLength(200).WithMessage("Organization name cannot exceed 200 characters.");
 
                 RuleFor(x => x.PhoneNumber)
-                    .NotEmpty()
-                    .WithMessage("Enter phone number")
-                    .Matches(@"^\+?[1-9]\d{1,14}$")
-                    .WithMessage("Enter a valid phoneNumber");
+                    .NotEmpty().WithMessage("Phone number is required.")
+                    .Matches(@"^(\+?\d{1,3}[-\s]?)?0?\d{10}$")
+                    .WithMessage("Enter a valid phone number.");
 
                 RuleFor(x => x.Email)
                     .NotEmpty().WithMessage("Email is required.")

@@ -20,5 +20,6 @@ namespace Domain.Entities
         public decimal DeliveryFee { get; set; }
         public ListingStatus Status { get; set; }
         public ICollection<Rating> Ratings { get; set; } = new HashSet<Rating>();
+        public ICollection<ListingImage> ListingImages { get; set; } = new HashSet<ListingImage>(); 
     }
 }

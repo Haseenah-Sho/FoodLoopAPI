@@ -1,3 +1,4 @@
+using Infrastructure.Hubs;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,24 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (FluentValidation.ValidationException ex)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            Message = "Validation failed.",
+            Errors = ex.Errors.Select(e => e.ErrorMessage),
+            IsSuccessful = false
+        });
+    }
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -53,7 +72,9 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.MapHub<NotificationHub>("/hubs/notifications");
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

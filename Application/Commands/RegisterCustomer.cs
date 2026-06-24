@@ -34,7 +34,8 @@ namespace Application.Commands
 
                 RuleFor(x => x.PhoneNumber)
                     .NotEmpty().WithMessage("Phone number is required.")
-                    .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Enter a valid phone number.");
+                    .Matches(@"^(\+?\d{1,3}[-\s]?)?0?\d{10}$")
+                    .WithMessage("Enter a valid phone number.");
 
                 RuleFor(x => x.Address)
                     .NotEmpty().WithMessage("Address is required.")
@@ -114,7 +115,7 @@ namespace Application.Commands
                             new RegisterCustomerResponse(existingUser.Id, existingUser.Email));
                     }
 
-                    string verificationToken = new Random().Next(1000, 9999).ToString();
+                    string verificationToken = new Random().Next(100000, 999999).ToString();
 
                     var user = new User
                     {

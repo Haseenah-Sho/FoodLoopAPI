@@ -9,5 +9,6 @@ namespace Application.Repositories
         Task<ICollection<Listing>> GetAllActiveListingsAsync();
         Task<ICollection<Listing>> GetListingsByVendorAsync(Guid vendorId);
         void Update(Listing listing);
+        Task<bool> TryDecrementStockAsync(Guid listingId, int quantity);
     }
 }

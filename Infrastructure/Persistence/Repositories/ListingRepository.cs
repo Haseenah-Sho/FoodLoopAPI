@@ -42,5 +42,15 @@ namespace Infrastructure.Persistence.Repositories
                 .Where(l => l.VendorId == vendorId && !l.IsDeleted)
                 .ToListAsync();
         }
+
+        public async Task<bool> TryDecrementStockAsync(Guid listingId, int quantity)
+        {
+            var rowsAffected = await context.Database.ExecuteSqlInterpolatedAsync($@"
+            UPDATE Listings 
+            SET RemainingPortion = RemainingPortion - {quantity}
+            WHERE Id = {listingId} AND RemainingPortion >= {quantity} AND IsDeleted != 1");
+
+            return rowsAffected > 0;
+        }
     }
 }

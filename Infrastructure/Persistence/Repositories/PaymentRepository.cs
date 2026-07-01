@@ -31,5 +31,26 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(p => p.Order)
                 .FirstOrDefaultAsync(p => p.OrderId == orderId && !p.IsDeleted);
         }
+
+        public async Task<Payment?> GetByReferenceAsync(string reference)
+        {
+            return await context.Set<Payment>()
+                .Include(p => p.Order)
+                .FirstOrDefaultAsync(p => p.PaystackReference == reference && !p.IsDeleted);
+        }
+
+        public async Task<ICollection<Payment>> GetByUserAsync(Guid userId)
+        {
+            return await context.Set<Payment>()
+                .Include(p => p.Order)
+                .Where(p => p.UserId == userId && !p.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<Payment>> GetAllPaymentsAsync()
+        {
+            return await context.Set<Payment>()
+                .ToListAsync();
+        }
     }
 }

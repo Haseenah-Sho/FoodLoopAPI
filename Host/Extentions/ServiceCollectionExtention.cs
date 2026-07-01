@@ -1,5 +1,4 @@
-﻿using Application.Common.Behaviours;
-using Application.Common.Behaviours.ValidationBehaviour;
+﻿using Application.Common.Behaviours.ValidationBehaviour;
 using Application.Common.Models;
 using Application.Repositories;
 using Application.Services;
@@ -59,7 +58,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileUploadService, FileUploadService>();
         services.AddSignalR();
         services.AddScoped<INotificationService, NotificationService>();
-        services.AddScoped<IEmailService, EmailService>();
+        services.AddHttpClient<IPaystackService, PaystackService>();
         return services;
     }
 
@@ -67,8 +66,10 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services, IConfiguration config)
     {
         services.Configure<JwtSettings>(config.GetSection("JwtSettings"));
+        services.Configure<PaystackSettings>(config.GetSection("PaystackSettings"));
         return services;
     }
+
 
     public static IServiceCollection AddMediatRWithBehaviours(
         this IServiceCollection services)

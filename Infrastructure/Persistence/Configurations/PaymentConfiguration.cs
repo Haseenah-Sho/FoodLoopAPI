@@ -21,6 +21,9 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(p => p.PaidAt)
                 .IsRequired(false);
 
+            builder.Property(p => p.PaystackReference)
+                .HasMaxLength(100);
+
             builder.Property(e => e.IsDeleted).HasDefaultValue(false);
 
             builder.HasOne(p => p.User)

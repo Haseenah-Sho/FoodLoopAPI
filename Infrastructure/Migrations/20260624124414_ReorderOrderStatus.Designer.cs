@@ -4,6 +4,7 @@ using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260624124414_ReorderOrderStatus")]
+    partial class ReorderOrderStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -444,11 +447,16 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Stars")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("VendorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("ListingId");
+
+                    b.HasIndex("VendorId");
 
                     b.ToTable("Ratings");
                 });
@@ -817,9 +825,16 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("ListingId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Domain.Entities.Vendor", "Vendor")
+                        .WithMany("Ratings")
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Customer");
 
                     b.Navigation("Listing");
+
+                    b.Navigation("Vendor");
                 });
 
             modelBuilder.Entity("Domain.Entities.Strike", b =>
@@ -915,6 +930,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Vendor", b =>
                 {
                     b.Navigation("Listings");
+
+                    b.Navigation("Ratings");
                 });
 #pragma warning restore 612, 618
         }

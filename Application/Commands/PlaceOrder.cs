@@ -43,20 +43,22 @@ namespace Application.Commands
             IOrderRepository orderRepository,
             IUnitOfWork unitOfWork,
             INotificationService notificationService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IPaystackService paystackService)
             : IRequestHandler<PlaceOrderCommand, BaseResponse<PlaceOrderResponse>>
         {
             public async Task<BaseResponse<PlaceOrderResponse>> Handle(
                 PlaceOrderCommand request,
                 CancellationToken cancellationToken)
             {
+                var decrementedItems = new List<(Guid ListingId, int Quantity)>();
+
                 try
                 {
                     var customer = await customerRepository.GetCustomerByUserIdAsync(request.CustomerUserId);
                     if (customer is null)
                         return BaseResponse<PlaceOrderResponse>.Failure("Customer profile not found.");
 
-                    // Pre-fetch all listings first to validate same-vendor rule before touching stock
                     var requestedListings = new List<(PlaceOrderItemRequest Item, Listing? Listing)>();
 
                     foreach (var item in request.Items)
@@ -79,7 +81,6 @@ namespace Application.Commands
                         return BaseResponse<PlaceOrderResponse>.Failure(
                             "All items in one order must be from the same vendor. Please check out items from different vendors separately.");
 
-                    // Capture vendor identity once, since all listings share one vendor
                     var vendor = validListings.FirstOrDefault()?.Vendor;
 
                     var order = new Order
@@ -87,7 +88,7 @@ namespace Application.Commands
                         OrderNo = $"FDL-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString()[..4].ToUpper()}",
                         CustomerId = customer.Id,
                         FulfilmentType = request.FulfilmentType,
-                        DeliveryAddress = request.FulfilmentType == FulfilmentType.Delivery? request.DeliveryAddress : null,
+                        DeliveryAddress = request.FulfilmentType == FulfilmentType.Delivery ? request.DeliveryAddress : null,
                         Status = OrderStatus.Confirmed,
                         CreatedBy = customer.UserId.ToString(),
                     };
@@ -119,6 +120,8 @@ namespace Application.Commands
                             continue;
                         }
 
+                        decrementedItems.Add((listing.Id, item.Quantity));
+
                         order.OrderListings.Add(new OrderListing
                         {
                             ListingId = listing.Id,
@@ -140,7 +143,6 @@ namespace Application.Commands
                                 listingRepository.Update(refreshedListing);
                             }
 
-                            // Broadcast live stock update to anyone viewing this listing
                             await notificationService.NotifyStockChange(
                                 refreshedListing.Id,
                                 refreshedListing.RemainingPortion,
@@ -151,12 +153,54 @@ namespace Application.Commands
                     }
 
                     if (order.OrderListings.Count == 0)
+                    {
+                        foreach (var (listingId, quantity) in decrementedItems)
+                            await listingRepository.RestoreStockAsync(listingId, quantity);
+
                         return BaseResponse<PlaceOrderResponse>.Failure(
                             "None of the items in your order could be processed.",
                             unfulfilledItems);
+                    }
 
                     order.TotalAmount = totalAmount + totalDeliveryFee;
 
+                    string? paymentAuthorizationUrl = null;
+
+                    if (order.TotalAmount > 0)
+                    {
+                        order.Status = OrderStatus.Pending;
+
+                        var paymentReference = $"PAY-{Guid.NewGuid().ToString("N")[..12].ToUpper()}";
+
+                        var initResult = await paystackService.InitializeTransactionAsync(
+                            customer.User.Email, order.TotalAmount, paymentReference);
+
+                        if (!initResult.Success)
+                        {
+                            foreach (var (listingId, quantity) in decrementedItems)
+                                await listingRepository.RestoreStockAsync(listingId, quantity);
+
+                            return BaseResponse<PlaceOrderResponse>.Failure(
+                                $"Payment initialization failed: {initResult.ErrorMessage}");
+                        }
+
+                        var payment = new Payment
+                        {
+                            OrderId = order.Id,
+                            UserId = customer.UserId,
+                            Amount = order.TotalAmount,
+                            Status = PaystackStatus.Pending,
+                            PaystackReference = initResult.Reference,
+                            CreatedBy = customer.User.Email
+                        };
+
+                        order.Payment = payment;
+                        paymentAuthorizationUrl = initResult.AuthorizationUrl;
+                    }
+                    else
+                    {
+                        order.Status = OrderStatus.Confirmed;
+                    }
                     await orderRepository.AddAsync(order);
                     await unitOfWork.SaveAsync();
 
@@ -194,16 +238,29 @@ namespace Application.Commands
                             order.TotalAmount,
                             order.Status.ToString(),
                             fulfilledListingNames,
-                            unfulfilledItems));
+                            unfulfilledItems,
+                            paymentAuthorizationUrl,
+                            order.Payment?.PaystackReference));
                 }
                 catch (Exception ex)
                 {
+                    foreach (var (listingId, quantity) in decrementedItems)
+                        await listingRepository.RestoreStockAsync(listingId, quantity);
+
                     return BaseResponse<PlaceOrderResponse>.Failure(
-                        $"An error occurred while placing your order: {ex.Message}");
+                        $"An error occurred while placing your order: {ex.Message} | Inner: {ex.InnerException?.Message}");
                 }
             }
         }
 
-        public record PlaceOrderResponse(Guid OrderId, string OrderNo, decimal TotalAmount, string Status, List<string> FulfilledItems, List<string> UnfulfilledItems);
+        public record PlaceOrderResponse(
+            Guid OrderId,
+            string OrderNo,
+            decimal TotalAmount,
+            string Status,
+            List<string> FulfilledItems,
+            List<string> UnfulfilledItems,
+            string? PaymentAuthorizationUrl,
+            string? PaymentReference);
     }
 }

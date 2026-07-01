@@ -21,28 +21,11 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<ICollection<Rating>> GetByVendorAsync(Guid vendorId)
-        {
-            return await context.Set<Rating>()
-                .Include(r => r.Customer)
-                    .ThenInclude(c => c.User)
-                .Where(r => r.VendorId == vendorId && !r.IsDeleted)
-                .ToListAsync();
-        }
-
         public async Task<bool> HasCustomerRatedListingAsync(Guid customerId, Guid listingId)
         {
             return await context.Set<Rating>()
                 .AnyAsync(r => r.CustomerId == customerId
                             && r.ListingId == listingId
-                            && !r.IsDeleted);
-        }
-
-        public async Task<bool> HasCustomerRatedVendorAsync(Guid customerId, Guid vendorId)
-        {
-            return await context.Set<Rating>()
-                .AnyAsync(r => r.CustomerId == customerId
-                            && r.VendorId == vendorId
                             && !r.IsDeleted);
         }
     }

@@ -51,5 +51,22 @@ namespace Infrastructure.Persistence.Repositories
                 .Where(o => o.CustomerId == customerId && !o.IsDeleted)
                 .ToListAsync();
         }
+
+        public async Task<ICollection<Order>> GetOrdersByVendorAsync(Guid vendorId)
+        {
+            return await context.Set<Order>()
+                .Include(o => o.Customer).ThenInclude(c => c.User)
+                .Include(o => o.Payment)
+                .Include(o => o.OrderListings).ThenInclude(ol => ol.Listing)
+                .Where(o => o.OrderListings.Any(ol => ol.Listing.VendorId == vendorId) && !o.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<Order>> GetAllOrdersAsync()
+        {
+            return await context.Set<Order>()
+                .Include(o => o.Payment)
+                .ToListAsync();
+        }
     }
 }

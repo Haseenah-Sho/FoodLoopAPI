@@ -8,6 +8,5 @@
         public string PhoneNumber { get; set; } = default!;
         public bool IsApproved { get; set; } = false;
         public ICollection<Listing> Listings { get; set; } = new HashSet<Listing>();
-        public ICollection<Rating> Ratings { get; set; } = new HashSet<Rating>();
     }
 }

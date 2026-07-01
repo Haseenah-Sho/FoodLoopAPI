@@ -32,11 +32,6 @@ namespace Infrastructure.Persistence.Configurations
                 .WithOne(l => l.Vendor)
                 .HasForeignKey(l => l.VendorId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasMany(v => v.Ratings)
-                .WithOne(r => r.Vendor)
-                .HasForeignKey(r => r.VendorId)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

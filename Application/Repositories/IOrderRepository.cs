@@ -9,5 +9,8 @@ namespace Application.Repositories
         Task<Order?> GetOrderAsync(Guid id);
         Task<Order?> GetOrderByOrderNoAsync(string orderNo);
         Task<ICollection<Order>> GetOrdersByCustomerAsync(Guid customerId);
+        Task<ICollection<Order>> GetOrdersByVendorAsync(Guid vendorId);
+        Task<ICollection<Order>> GetAllOrdersAsync();
+
     }
 }

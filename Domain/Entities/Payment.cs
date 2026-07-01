@@ -10,6 +10,7 @@ namespace Domain.Entities
         public User User { get; set; } = default!;
         public decimal? Amount { get; set; }
         public PaystackStatus Status { get; set; }
+        public string? PaystackReference { get; set; }
         public DateTime? PaidAt { get; set; }
     }
 }

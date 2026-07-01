@@ -52,5 +52,21 @@ namespace Infrastructure.Persistence.Repositories
 
             return rowsAffected > 0;
         }
+
+        public async Task RestoreStockAsync(Guid listingId, int quantity)
+        {
+            await context.Database.ExecuteSqlInterpolatedAsync($@"
+            UPDATE Listings 
+            SET RemainingPortion = RemainingPortion + {quantity},
+            Status = CASE WHEN Status = 'Completed' THEN 'Active' ELSE Status END
+            WHERE Id = {listingId}");
+        }
+
+        public async Task<ICollection<Listing>> GetAllListingsAsync()
+        {
+            return await context.Set<Listing>()
+                .Include(l => l.Vendor)
+                .ToListAsync();
+        }
     }
 }

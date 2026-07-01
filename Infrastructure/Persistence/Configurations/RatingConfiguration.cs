@@ -19,12 +19,6 @@ namespace Infrastructure.Persistence.Configurations
 
             builder.Property(e => e.IsDeleted).HasDefaultValue(false);
 
-            builder.HasOne(r => r.Vendor)
-                .WithMany(v => v.Ratings)
-                .HasForeignKey(r => r.VendorId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.Restrict);
-
         }
     }
 }

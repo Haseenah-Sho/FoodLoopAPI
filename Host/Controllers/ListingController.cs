@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Application.Commands.CreateListing;
+using static Application.Queries.GetEachVendorListings;
 using static Application.Queries.GetListingDetails;
 using static Application.Queries.GetListings;
 
@@ -33,6 +34,15 @@ namespace Host.Controllers
         public async Task<IActionResult> GetListingDetails(Guid listingId)
         {
             var result = await mediator.Send(new GetListingDetailsQuery(listingId));
+            return Ok(result);
+        }
+
+        [HttpGet("vendor-listings")]
+        [Authorize(Roles = AppRoles.Vendor)]
+        public async Task<IActionResult> GetVendorListings()
+        {
+            var vendorUserId = currentUser.GetCurrentUser();
+            var result = await mediator.Send(new GetEachVendorListingsQuery(vendorUserId));
             return Ok(result);
         }
     }

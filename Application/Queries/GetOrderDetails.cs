@@ -8,7 +8,15 @@ namespace Application.Queries
     {
         public record GetOrderDetailsQuery(Guid CustomerUserId, Guid OrderId) : IRequest<BaseResponse<GetOrderDetailsResponse>>;
 
-        public record OrderItemResponse(string FoodName, int Quantity);
+        public record OrderItemResponse(
+            Guid ListingId,
+            string FoodName,
+            int Quantity,
+            bool IsFree,
+            decimal? UnitPrice,
+            string? ImageUrl,
+            DateTime PickUpStart,
+            DateTime PickUpEnd);
 
         public record GetOrderDetailsResponse(
             Guid OrderId,
@@ -18,6 +26,9 @@ namespace Application.Queries
             string FulfilmentType,
             string? DeliveryAddress,
             DateTime OrderedOn,
+            string VendorName,
+            string VendorPhone,
+            bool CanCancel,
             List<OrderItemResponse> Items);
 
         public class GetOrderDetailsHandler(
@@ -42,6 +53,8 @@ namespace Application.Queries
                     if (order.CustomerId != customer.Id)
                         return BaseResponse<GetOrderDetailsResponse>.Failure("You are not authorized to view this order.");
 
+                    var vendor = order.OrderListings.FirstOrDefault()?.Listing.Vendor;
+
                     var response = new GetOrderDetailsResponse(
                         order.Id,
                         order.OrderNo,
@@ -50,8 +63,19 @@ namespace Application.Queries
                         order.FulfilmentType.ToString(),
                         order.DeliveryAddress,
                         order.DateCreated,
+                        vendor?.OrganizationName ?? "Vendor",
+                        vendor?.PhoneNumber ?? "",
+                        order.Status == Domain.Enums.OrderStatus.Pending,
                         order.OrderListings.Select(ol => new OrderItemResponse(
-                            ol.Listing.FoodName, ol.Quantity)).ToList());
+                            ol.ListingId,
+                            ol.Listing.FoodName,
+                            ol.Quantity,
+                            ol.Listing.IsFree,
+                            ol.Listing.IsFree ? null : ol.Listing.Price,
+                            ol.Listing.ListingImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                                ?? ol.Listing.ListingImages.FirstOrDefault()?.ImageUrl,
+                            ol.Listing.PickUpStart,
+                            ol.Listing.PickUpEnd)).ToList());
 
                     return BaseResponse<GetOrderDetailsResponse>.Success(
                         "Order details retrieved successfully.", response);

@@ -3,13 +3,16 @@ using Application.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Application.Commands.CancelOrder;
 using static Application.Commands.DispatchOrder;
 using static Application.Commands.MarkAsDelivered;
 using static Application.Commands.PlaceOrder;
+using static Application.Commands.ResumePayment;
 using static Application.Commands.VerifyPickup;
 using static Application.Queries.GetOrderByOrderNo;
 using static Application.Queries.GetOrderDetails;
 using static Application.Queries.GetOrders;
+using static Application.Queries.GetVendorOrders;
 
 namespace Host.Controllers
 {
@@ -33,21 +36,21 @@ namespace Host.Controllers
             return Ok(result);
         }
 
-        [HttpGet("Orders")]
+        [HttpGet("my-orders")]
         [Authorize(Roles = AppRoles.Customer)]
-        public async Task<IActionResult> GetOrders()
+        public async Task<IActionResult> GetMyOrders()
         {
             var customerUserId = currentUser.GetCurrentUser();
             var result = await mediator.Send(new GetOrdersQuery(customerUserId));
             return Ok(result);
         }
 
-        [HttpGet("{orderId}")]
-        [Authorize(Roles = AppRoles.Customer)]
-        public async Task<IActionResult> GetOrderDetails(Guid orderId)
+        [HttpGet("vendor-orders")]
+        [Authorize(Roles = AppRoles.Vendor)]
+        public async Task<IActionResult> GetVendorOrders()
         {
-            var customerUserId = currentUser.GetCurrentUser();
-            var result = await mediator.Send(new GetOrderDetailsQuery(customerUserId, orderId));
+            var vendorUserId = currentUser.GetCurrentUser();
+            var result = await mediator.Send(new GetVendorOrdersQuery(vendorUserId));
             return Ok(result);
         }
 
@@ -57,6 +60,15 @@ namespace Host.Controllers
         {
             var vendorUserId = currentUser.GetCurrentUser();
             var result = await mediator.Send(new GetOrderByOrderNoQuery(vendorUserId, orderNo));
+            return Ok(result);
+        }
+
+        [HttpGet("{orderId}")]
+        [Authorize(Roles = AppRoles.Customer)]
+        public async Task<IActionResult> GetOrderDetails(Guid orderId)
+        {
+            var customerUserId = currentUser.GetCurrentUser();
+            var result = await mediator.Send(new GetOrderDetailsQuery(customerUserId, orderId));
             return Ok(result);
         }
 
@@ -86,6 +98,25 @@ namespace Host.Controllers
             var result = await mediator.Send(new MarkAsDeliveredCommand(vendorUserId, orderNo));
             return Ok(result);
         }
+
+        [HttpDelete("{orderId}")]
+        [Authorize(Roles = AppRoles.Customer)]
+        public async Task<IActionResult> CancelOrder(Guid orderId)
+        {
+            var customerUserId = currentUser.GetCurrentUser();
+            var result = await mediator.Send(new CancelOrderCommand(customerUserId, orderId));
+            return Ok(result);
+        }
+
+        [HttpPost("{orderId}/resume-payment")]
+        [Authorize(Roles = AppRoles.Customer)]
+        public async Task<IActionResult> ResumePayment(Guid orderId)
+        {
+            var customerUserId = currentUser.GetCurrentUser();
+            var result = await mediator.Send(new ResumePaymentCommand(customerUserId, orderId));
+            return Ok(result);
+        }
+
     }
 
     public record PlaceOrderRequest(

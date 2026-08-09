@@ -9,6 +9,19 @@ builder.Services.AddApplicationServices();
 builder.Services.AddAppSettings(builder.Configuration);
 builder.Services.AddMediatRWithBehaviours();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDev", policy =>
+    {
+        policy.WithOrigins(
+                "http://127.0.0.1:5500",
+                "http://localhost:5500")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -72,10 +85,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.MapHub<NotificationHub>("/hubs/notifications");
+app.UseCors("FrontendDev");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 app.Run();

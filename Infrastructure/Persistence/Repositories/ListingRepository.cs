@@ -24,6 +24,7 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(l => l.Vendor)
                     .ThenInclude(v => v.User)
                 .Include(l => l.Ratings)
+                .Include(l => l.ListingImages)
                 .FirstOrDefaultAsync(l => l.Id == id && !l.IsDeleted);
         }
 
@@ -32,6 +33,7 @@ namespace Infrastructure.Persistence.Repositories
             return await context.Set<Listing>()
                 .Include(l => l.Vendor)
                     .ThenInclude(v => v.User)
+                .Include(l => l.ListingImages)
                 .Where(l => l.Status == ListingStatus.Active && !l.IsDeleted)
                 .ToListAsync();
         }
@@ -39,7 +41,9 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<ICollection<Listing>> GetListingsByVendorAsync(Guid vendorId)
         {
             return await context.Set<Listing>()
+                .Include(l => l.ListingImages)
                 .Where(l => l.VendorId == vendorId && !l.IsDeleted)
+                .OrderByDescending(l => l.DateCreated)
                 .ToListAsync();
         }
 
@@ -47,7 +51,8 @@ namespace Infrastructure.Persistence.Repositories
         {
             var rowsAffected = await context.Database.ExecuteSqlInterpolatedAsync($@"
             UPDATE Listings 
-            SET RemainingPortion = RemainingPortion - {quantity}
+            SET RemainingPortion = RemainingPortion - {quantity},
+            Status = CASE WHEN (RemainingPortion - {quantity}) <= 0 THEN 'Completed' ELSE Status END
             WHERE Id = {listingId} AND RemainingPortion >= {quantity} AND IsDeleted != 1");
 
             return rowsAffected > 0;

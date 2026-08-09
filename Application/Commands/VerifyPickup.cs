@@ -52,7 +52,7 @@ namespace Application.Commands
                         return BaseResponse<VerifyPickupResponse>.Failure("This order is not a pickup order.");
 
                     if (order.Status == OrderStatus.Completed)
-                        return BaseResponse<VerifyPickupResponse>.Failure("This order has already been marked as picked up.");
+                        return BaseResponse<VerifyPickupResponse>.Failure("This order has already been picked up.");
 
                     if (order.Status == OrderStatus.Cancelled)
                         return BaseResponse<VerifyPickupResponse>.Failure("This order has been cancelled.");

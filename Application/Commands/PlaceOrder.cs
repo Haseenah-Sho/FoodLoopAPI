@@ -134,20 +134,13 @@ namespace Application.Commands
                         if (request.FulfilmentType == FulfilmentType.Delivery)
                             totalDeliveryFee += listing.DeliveryFee;
 
-                        var refreshedListing = await listingRepository.GetListingAsync(listing.Id);
-                        if (refreshedListing is not null)
-                        {
-                            if (refreshedListing.RemainingPortion <= 0)
-                            {
-                                refreshedListing.Status = ListingStatus.Completed;
-                                listingRepository.Update(refreshedListing);
-                            }
+                        var newRemainingPortion = listing.RemainingPortion - item.Quantity;
+                        var newStatus = newRemainingPortion <= 0 ? ListingStatus.Completed : listing.Status;
 
-                            await notificationService.NotifyStockChange(
-                                refreshedListing.Id,
-                                refreshedListing.RemainingPortion,
-                                refreshedListing.Status.ToString());
-                        }
+                        await notificationService.NotifyStockChange(
+                            listing.Id,
+                            newRemainingPortion,
+                            newStatus.ToString());
 
                         fulfilledListingNames.Add(listing.FoodName);
                     }

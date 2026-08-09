@@ -42,9 +42,10 @@ namespace Infrastructure.Services
                 {
                     id = notification.Id,
                     title = notification.Title,
-                    message = notification.MessageContent,
-                    type = notification.NotificationType.ToString(),
-                    createdAt = notification.DateCreated
+                    messageContent = notification.MessageContent,
+                    notificationType = notification.NotificationType.ToString(),
+                    isRead = false,
+                    dateCreated = notification.DateCreated
                 });
         }
 

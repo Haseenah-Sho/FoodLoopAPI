@@ -24,6 +24,11 @@ namespace Infrastructure.Persistence.Repositories
                     .ThenInclude(c => c.User)
                 .Include(o => o.OrderListings)
                     .ThenInclude(ol => ol.Listing)
+                        .ThenInclude(l => l.Vendor)
+                            .ThenInclude(v => v.User)
+                .Include(o => o.OrderListings)
+                    .ThenInclude(ol => ol.Listing)
+                        .ThenInclude(l => l.ListingImages)
                 .Include(o => o.Payment)
                 .Include(o => o.Delivery)
                 .FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted);
@@ -47,8 +52,8 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(o => o.OrderListings)
                     .ThenInclude(ol => ol.Listing)
                 .Include(o => o.Payment)
-                .Include(o => o.Delivery)
                 .Where(o => o.CustomerId == customerId && !o.IsDeleted)
+                .OrderByDescending(o => o.DateCreated)
                 .ToListAsync();
         }
 

@@ -12,5 +12,6 @@ namespace Application.Repositories
         Task<bool> TryDecrementStockAsync(Guid listingId, int quantity);
         Task RestoreStockAsync(Guid listingId, int quantity);
         Task<ICollection<Listing>> GetAllListingsAsync();
+        Task<ICollection<Listing>> GetActiveListingsPastPickUpEndAsync();
     }
 }

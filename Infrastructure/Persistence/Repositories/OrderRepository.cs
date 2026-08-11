@@ -73,5 +73,19 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(o => o.Payment)
                 .ToListAsync();
         }
+
+        public async Task<ICollection<Order>> GetStalePendingOrdersAsync(TimeSpan olderThan)
+        {
+            var cutoff = DateTime.UtcNow - olderThan;
+            return await context.Set<Order>()
+                .Include(o => o.Customer)
+                .Include(o => o.OrderListings)
+                    .ThenInclude(ol => ol.Listing)
+                        .ThenInclude(l => l.Vendor)
+                .Where(o => o.Status == Domain.Enums.OrderStatus.Pending
+                         && o.DateCreated <= cutoff
+                         && !o.IsDeleted)
+                .ToListAsync();
+        }
     }
 }

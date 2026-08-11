@@ -30,11 +30,24 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<ICollection<Listing>> GetAllActiveListingsAsync()
         {
+            var now = DateTime.UtcNow;
             return await context.Set<Listing>()
                 .Include(l => l.Vendor)
                     .ThenInclude(v => v.User)
                 .Include(l => l.ListingImages)
-                .Where(l => l.Status == ListingStatus.Active && !l.IsDeleted)
+                .Where(l => l.Status == ListingStatus.Active
+                         && l.PickUpEnd > now
+                         && !l.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<Listing>> GetActiveListingsPastPickUpEndAsync()
+        {
+            var now = DateTime.UtcNow;
+            return await context.Set<Listing>()
+                .Where(l => l.Status == ListingStatus.Active
+                         && l.PickUpEnd <= now
+                         && !l.IsDeleted)
                 .ToListAsync();
         }
 
@@ -63,7 +76,7 @@ namespace Infrastructure.Persistence.Repositories
             await context.Database.ExecuteSqlInterpolatedAsync($@"
             UPDATE Listings 
             SET RemainingPortion = RemainingPortion + {quantity},
-            Status = CASE WHEN Status = 'Completed' THEN 'Active' ELSE Status END
+            Status = CASE WHEN Status = 'Completed' AND PickUpEnd > {DateTime.UtcNow} THEN 'Active' ELSE Status END
             WHERE Id = {listingId}");
         }
 

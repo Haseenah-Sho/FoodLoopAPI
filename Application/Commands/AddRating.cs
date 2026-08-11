@@ -16,7 +16,7 @@ namespace Application.Commands
             public AddRatingValidator()
             {
                 RuleFor(x => x.ListingId)
-                    .NotEmpty().WithMessage("Listing ID is required.");
+                    .NotEmpty().WithMessage("Item ID is required.");
 
                 RuleFor(x => x.Stars)
                     .InclusiveBetween(1, 5).WithMessage("Stars must be between 1 and 5.");
@@ -47,7 +47,7 @@ namespace Application.Commands
 
                     var listing = await listingRepository.GetListingAsync(request.ListingId);
                     if (listing is null)
-                        return BaseResponse<AddRatingResponse>.Failure("Listing not found.");
+                        return BaseResponse<AddRatingResponse>.Failure("Food item not found.");
 
                     // I want to confirm that the customer has a completed order that contains this listing
                     var customerOrders = await orderRepository.GetOrdersByCustomerAsync(customer.Id);
@@ -58,14 +58,14 @@ namespace Application.Commands
 
                     if (!hasCompletedOrder)
                         return BaseResponse<AddRatingResponse>.Failure(
-                            "You can only rate a listing after your order has been completed.");
+                            "You can only rate a food item after your order has been completed.");
 
                     var alreadyRated = await ratingRepository
                         .HasCustomerRatedListingAsync(customer.Id, request.ListingId);
 
                     if (alreadyRated)
                         return BaseResponse<AddRatingResponse>.Failure(
-                            "You have already rated this listing.");
+                            "You have already rated this food item.");
 
                     var rating = new Rating
                     {

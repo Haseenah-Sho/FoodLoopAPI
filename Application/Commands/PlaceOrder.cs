@@ -102,7 +102,7 @@ namespace Application.Commands
                     {
                         if (listing is null)
                         {
-                            unfulfilledItems.Add($"Listing {item.ListingId} not found.");
+                            unfulfilledItems.Add($"Food item {item.ListingId} not found.");
                             continue;
                         }
 
@@ -157,6 +157,15 @@ namespace Application.Commands
 
                     order.TotalAmount = totalAmount + totalDeliveryFee;
 
+                    if (order.TotalAmount > 0 && string.IsNullOrWhiteSpace(vendor?.PaystackSubaccountCode))
+                    {
+                        foreach (var (listingId, quantity) in decrementedItems)
+                            await listingRepository.RestoreStockAsync(listingId, quantity);
+
+                        return BaseResponse<PlaceOrderResponse>.Failure(
+                            "This food provider hasn't finished setting up payouts yet, so paid orders can't be placed right now.");
+                    }
+
                     string? paymentAuthorizationUrl = null;
 
                     if (order.TotalAmount > 0)
@@ -166,7 +175,7 @@ namespace Application.Commands
                         var paymentReference = $"PAY-{Guid.NewGuid().ToString("N")[..12].ToUpper()}";
 
                         var initResult = await paystackService.InitializeTransactionAsync(
-                            customer.User.Email, order.TotalAmount, paymentReference);
+                            customer.User.Email, order.TotalAmount, paymentReference, vendor?.PaystackSubaccountCode);
 
                         if (!initResult.Success)
                         {

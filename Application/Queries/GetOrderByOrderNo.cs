@@ -43,7 +43,7 @@ namespace Application.Queries
 
                     if (!belongsToVendor)
                         return BaseResponse<GetOrderByOrderNoResponse>.Failure(
-                            "This order does not belong to any of your listings.");
+                            "This order does not belong to any of your food items.");
 
                     var response = new GetOrderByOrderNoResponse(
                         order.Id,

@@ -55,7 +55,7 @@ namespace Application.Queries
                         .ToList();
 
                     return BaseResponse<ICollection<GetEachVendorListingsResponse>>.Success(
-                        "Listings retrieved successfully.", response);
+                        "Food items retrieved successfully.", response);
                 }
                 catch (Exception ex)
                 {

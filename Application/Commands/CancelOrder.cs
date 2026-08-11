@@ -1,5 +1,6 @@
 ﻿using Application.Common.Dtos;
 using Application.Repositories;
+using Application.Services;
 using Domain.Enums;
 using MediatR;
 
@@ -14,7 +15,8 @@ namespace Application.Commands
             ICustomerRepository customerRepository,
             IOrderRepository orderRepository,
             IListingRepository listingRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            INotificationService notificationService)
             : IRequestHandler<CancelOrderCommand, BaseResponse<string>>
         {
             public async Task<BaseResponse<string>> Handle(
@@ -48,6 +50,22 @@ namespace Application.Commands
                     }
 
                     await unitOfWork.SaveAsync();
+
+                    var vendor = order.OrderListings.FirstOrDefault()?.Listing.Vendor;
+                    if (vendor is not null)
+                    {
+                        await notificationService.SendNotificationAsync(
+                            vendor.UserId,
+                            "Order Cancelled",
+                            $"Order {order.OrderNo} was cancelled by the customer before payment.",
+                            NotificationType.OrderStatusChanged);
+                    }
+
+                    await notificationService.SendNotificationAsync(
+                        customer.UserId,
+                        "Order Cancelled",
+                        $"Your order {order.OrderNo} has been cancelled.",
+                        NotificationType.OrderStatusChanged);
 
                     return BaseResponse<string>.Success(
                         "Order cancelled successfully.",

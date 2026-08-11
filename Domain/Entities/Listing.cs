@@ -7,9 +7,9 @@ namespace Domain.Entities
         public Guid VendorId { get; set; }
         public Vendor Vendor { get; set; } = default!;
         public string FoodName { get; set; } = default!;
-        public string FoodDescription { get; set;} = default!;
+        public string FoodDescription { get; set; } = default!;
         public int Quantity { get; set; }
-        public int QuantityPerUnit { get; set;}
+        public int QuantityPerUnit { get; set; }
         public int RemainingPortion { get; set; }
         public bool IsFree { get; set; }
         public decimal? Price { get; set; }
@@ -20,6 +20,9 @@ namespace Domain.Entities
         public decimal DeliveryFee { get; set; }
         public ListingStatus Status { get; set; }
         public ICollection<Rating> Ratings { get; set; } = new HashSet<Rating>();
-        public ICollection<ListingImage> ListingImages { get; set; } = new HashSet<ListingImage>(); 
+        public ICollection<ListingImage> ListingImages { get; set; } = new HashSet<ListingImage>();
+        public string Address { get; set; } = default!;
+        public decimal Latitude { get; set; }
+        public decimal Longitude { get; set; }
     }
 }

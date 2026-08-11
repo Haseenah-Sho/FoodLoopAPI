@@ -24,6 +24,9 @@ namespace Application.Queries
             decimal DeliveryFee,
             string Status,
             string VendorName,
+            string Address,
+            decimal Latitude,
+            decimal Longitude,
             double AverageRating,
             int RatingCount,
             List<string> ImageUrls);
@@ -61,6 +64,9 @@ namespace Application.Queries
                         listing.DeliveryFee,
                         listing.Status.ToString(),
                         listing.Vendor.OrganizationName,
+                        listing.Address,
+                        listing.Latitude,
+                        listing.Longitude,
                         Math.Round(averageRating, 1),
                         ratings.Count,
                         listing.ListingImages

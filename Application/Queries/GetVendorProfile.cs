@@ -13,7 +13,14 @@ namespace Application.Queries
             string OrganizationName,
             string PhoneNumber,
             string Email,
-            bool IsApproved);
+            bool IsApproved,
+            string Address,
+            decimal Latitude,
+            decimal Longitude,
+            bool HasPayoutAccountLinked,
+            string? BankName,
+            string? BankAccountNumber,
+            string? AccountName);
 
         public class GetVendorProfileHandler(
             IVendorRepository vendorRepository)
@@ -36,7 +43,14 @@ namespace Application.Queries
                             vendor.OrganizationName,
                             vendor.PhoneNumber,
                             vendor.User.Email,
-                            vendor.IsApproved));
+                            vendor.IsApproved,
+                            vendor.Address,
+                            vendor.Latitude,
+                            vendor.Longitude,
+                            !string.IsNullOrWhiteSpace(vendor.PaystackSubaccountCode),
+                            vendor.BankName,
+                            vendor.BankAccountNumber,
+                            vendor.AccountName));
                 }
                 catch (Exception ex)
                 {

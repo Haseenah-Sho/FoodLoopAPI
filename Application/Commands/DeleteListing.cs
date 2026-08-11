@@ -27,17 +27,17 @@ namespace Application.Commands
 
                     var listing = await listingRepository.GetListingAsync(request.ListingId);
                     if (listing is null)
-                        return BaseResponse<string>.Failure("Listing not found.");
+                        return BaseResponse<string>.Failure("Food item not found.");
 
                     if (listing.VendorId != vendor.Id)
-                        return BaseResponse<string>.Failure("You are not authorized to delete this listing.");
+                        return BaseResponse<string>.Failure("You are not authorized to delete this food item.");
 
                     listing.IsDeleted = true;
                     listing.DateModified = DateTime.UtcNow;
                     listingRepository.Update(listing);
                     await unitOfWork.SaveAsync();
 
-                    return BaseResponse<string>.Success("Listing deleted successfully.", listing.Id.ToString());
+                    return BaseResponse<string>.Success("Food item deleted successfully.", listing.Id.ToString());
                 }
                 catch (Exception ex)
                 {

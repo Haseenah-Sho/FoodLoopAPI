@@ -49,7 +49,7 @@ namespace Application.Commands
                         .Any(ol => ol.Listing.VendorId == vendor.Id);
                     if (!belongsToVendor)
                         return BaseResponse<DispatchOrderResponse>.Failure(
-                            "This order does not belong to any of your listings.");
+                            "This order does not belong to any of your food items.");
 
                     if (order.FulfilmentType != FulfilmentType.Delivery)
                         return BaseResponse<DispatchOrderResponse>.Failure("This order is not a delivery order.");
@@ -64,7 +64,7 @@ namespace Application.Commands
                     {
                         if (existingDelivery.Status != DeliveryStatus.Pending)
                             return BaseResponse<DispatchOrderResponse>.Failure(
-                                $"This order has already been marked as {existingDelivery.Status}.");
+                                $"This order has already been {existingDelivery.Status}.");
 
                         existingDelivery.Status = DeliveryStatus.Dispatched;
                         existingDelivery.DispatchedAt = DateTime.UtcNow;

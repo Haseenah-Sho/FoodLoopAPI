@@ -46,7 +46,7 @@ namespace Application.Commands
                         .Any(ol => ol.Listing.VendorId == vendor.Id);
                     if (!belongsToVendor)
                         return BaseResponse<VerifyPickupResponse>.Failure(
-                            "This order does not belong to any of your listings.");
+                            "This order does not belong to any of your listed food items.");
 
                     if (order.FulfilmentType != FulfilmentType.PickUp)
                         return BaseResponse<VerifyPickupResponse>.Failure("This order is not a pickup order.");
@@ -66,7 +66,7 @@ namespace Application.Commands
                     await notificationService.SendNotificationAsync(
                         order.Customer.UserId,
                         "Order Picked Up",
-                        $"Your order ({order.OrderNo}) has been marked as picked up. Enjoy your meal!",
+                        $"Your order ({order.OrderNo}) has been picked up. Enjoy your meal!",
                         NotificationType.OrderStatusChanged);
 
                     try
@@ -83,7 +83,7 @@ namespace Application.Commands
                     }
 
                     return BaseResponse<VerifyPickupResponse>.Success(
-                        "Pickup verified successfully. Order marked as completed.",
+                        "Pickup verified successfully. Order completed.",
                         new VerifyPickupResponse(order.Id, order.OrderNo, order.Status.ToString()));
                 }
                 catch (Exception ex)

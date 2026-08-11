@@ -48,7 +48,7 @@ namespace Application.Commands
                         .Any(ol => ol.Listing.VendorId == vendor.Id);
                     if (!belongsToVendor)
                         return BaseResponse<MarkAsDeliveredResponse>.Failure(
-                            "This order does not belong to any of your listings.");
+                            "This order does not belong to any of your food items.");
 
                     var delivery = await deliveryRepository.GetByOrderAsync(order.Id);
                     if (delivery is null)

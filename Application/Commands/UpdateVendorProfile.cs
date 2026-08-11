@@ -11,7 +11,10 @@ namespace Application.Commands
         public record UpdateVendorProfileCommand(
             Guid UserId,
             string OrganizationName,
-            string PhoneNumber) : IRequest<BaseResponse<UpdateVendorProfileResponse>>;
+            string PhoneNumber,
+            string Address,
+            decimal Latitude,
+            decimal Longitude) : IRequest<BaseResponse<UpdateVendorProfileResponse>>;
 
         public class UpdateVendorProfileValidator : AbstractValidator<UpdateVendorProfileCommand>
         {
@@ -21,6 +24,13 @@ namespace Application.Commands
                     .NotEmpty().WithMessage("Phone number is required.")
                     .Matches(@"^(\+?\d{1,3}[-\s]?)?0?\d{10}$")
                     .WithMessage("Enter a valid phone number.");
+
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Address is required.")
+                    .MaximumLength(300).WithMessage("Address cannot exceed 300 characters.");
+
+                RuleFor(x => x.Latitude).NotEqual(0).WithMessage("Please pin your location on the map.");
+                RuleFor(x => x.Longitude).NotEqual(0).WithMessage("Please pin your location on the map.");
             }
         }
 
@@ -43,6 +53,9 @@ namespace Application.Commands
 
                     vendor.OrganizationName = request.OrganizationName;
                     vendor.PhoneNumber = request.PhoneNumber;
+                    vendor.Address = request.Address;
+                    vendor.Latitude = request.Latitude;
+                    vendor.Longitude = request.Longitude;
                     vendor.DateModified = DateTime.UtcNow;
 
                     string message = "Profile updated successfully.";
@@ -62,6 +75,9 @@ namespace Application.Commands
                             vendor.Id,
                             vendor.OrganizationName,
                             vendor.PhoneNumber,
+                            vendor.Address,
+                            vendor.Latitude,
+                            vendor.Longitude,
                             vendor.IsApproved));
                 }
                 catch (Exception ex)
@@ -76,6 +92,9 @@ namespace Application.Commands
             Guid Id,
             string OrganizationName,
             string PhoneNumber,
+            string Address,
+            decimal Latitude,
+            decimal Longitude,
             bool IsApproved);
     }
 }

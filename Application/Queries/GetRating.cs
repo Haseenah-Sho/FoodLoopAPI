@@ -34,7 +34,7 @@ namespace Application.Queries
                 {
                     var listing = await listingRepository.GetListingAsync(request.ListingId);
                     if (listing is null)
-                        return BaseResponse<GetRatingResponse>.Failure("Listing not found.");
+                        return BaseResponse<GetRatingResponse>.Failure("Food item not found.");
 
                     var ratings = await ratingRepository.GetByListingAsync(request.ListingId);
 

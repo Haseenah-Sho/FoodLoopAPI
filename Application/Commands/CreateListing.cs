@@ -26,6 +26,9 @@ namespace Application.Commands
             public DateTime PickUpStart { get; set; }
             public DateTime PickUpEnd { get; set; }
             public decimal DeliveryFee { get; set; }
+            public string? Address { get; set; }
+            public decimal? Latitude { get; set; }
+            public decimal? Longitude { get; set; }
             public List<IFormFile> Images { get; set; } = new();
         }
 
@@ -65,6 +68,12 @@ namespace Application.Commands
                 RuleFor(x => x.Images)
                     .NotEmpty().WithMessage("At least one image is required.")
                     .Must(images => images.Count <= 5).WithMessage("You can upload a maximum of 5 images.");
+
+                // If a location override is given, it must be complete — no half-set coordinates.
+                RuleFor(x => x)
+                    .Must(x => !string.IsNullOrWhiteSpace(x.Address) == x.Latitude.HasValue
+                            && x.Latitude.HasValue == x.Longitude.HasValue)
+                    .WithMessage("If you set a different location for this item, provide the address and pin both together.");
             }
         }
 
@@ -97,6 +106,9 @@ namespace Application.Commands
                             return BaseResponse<CreateListingResponse>.Failure(errorMessage!);
                     }
 
+                    bool hasOwnLocation = !string.IsNullOrWhiteSpace(request.Address)
+                        && request.Latitude.HasValue && request.Longitude.HasValue;
+
                     var listing = new Listing
                     {
                         VendorId = vendor.Id,
@@ -112,6 +124,9 @@ namespace Application.Commands
                         PickUpStart = request.PickUpStart,
                         PickUpEnd = request.PickUpEnd,
                         DeliveryFee = request.DeliveryAvailable ? request.DeliveryFee : 0,
+                        Address = hasOwnLocation ? request.Address! : vendor.Address,
+                        Latitude = hasOwnLocation ? request.Latitude!.Value : vendor.Latitude,
+                        Longitude = hasOwnLocation ? request.Longitude!.Value : vendor.Longitude,
                         Status = ListingStatus.Active,
                         CreatedBy = vendor.User.Email,
                     };
@@ -133,13 +148,11 @@ namespace Application.Commands
                     await listingRepository.AddAsync(listing);
                     await unitOfWork.SaveAsync();
 
-                    // Broadcast to anyone browsing listings right now
                     await notificationService.NotifyNewListing(
                         listing.Id,
                         listing.FoodName,
                         vendor.OrganizationName,
                         listing.ListingImages.FirstOrDefault(li => li.IsPrimary)?.ImageUrl);
-
 
                     return BaseResponse<CreateListingResponse>.Success(
                         "Listing created successfully.",

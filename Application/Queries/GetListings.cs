@@ -20,6 +20,8 @@ namespace Application.Queries
             DateTime PickUpStart,
             DateTime PickUpEnd,
             string VendorName,
+            decimal Latitude,
+            decimal Longitude,
             string? PrimaryImageUrl);
 
         public class GetListingsHandler(
@@ -49,6 +51,8 @@ namespace Application.Queries
                         l.PickUpStart,
                         l.PickUpEnd,
                         l.Vendor.OrganizationName,
+                        l.Latitude,
+                        l.Longitude,
                         l.ListingImages.FirstOrDefault(li => li.IsPrimary)?.ImageUrl
                             ?? l.ListingImages.FirstOrDefault()?.ImageUrl
                     )).ToList();

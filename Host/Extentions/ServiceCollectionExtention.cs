@@ -59,6 +59,8 @@ public static class ServiceCollectionExtensions
         services.AddSignalR();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddHttpClient<IPaystackService, PaystackService>();
+        services.AddHostedService<ListingExpiryService>();
+        services.AddHostedService<PendingOrderExpiryService>();
         return services;
     }
 

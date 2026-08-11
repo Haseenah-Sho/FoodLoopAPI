@@ -18,7 +18,10 @@ namespace Application.Commands
             string PhoneNumber,
             string Email,
             string Password,
-            string ConfirmPassword) : IRequest<BaseResponse<RegisterVendorResponse>>;
+            string ConfirmPassword,
+            string Address,
+            decimal Latitude,
+            decimal Longitude) : IRequest<BaseResponse<RegisterVendorResponse>>;
 
         public class RegisterVendorValidator : AbstractValidator<RegisterVendorCommand>
         {
@@ -44,6 +47,16 @@ namespace Application.Commands
                 RuleFor(x => x.ConfirmPassword)
                     .NotEmpty().WithMessage("Confirm password is required.")
                     .Equal(x => x.Password).WithMessage("Passwords do not match.");
+
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Address is required.")
+                    .MaximumLength(300).WithMessage("Address cannot exceed 300 characters.");
+
+                RuleFor(x => x.Latitude)
+                    .NotEqual(0).WithMessage("Please pin your location on the map.");
+
+                RuleFor(x => x.Longitude)
+                    .NotEqual(0).WithMessage("Please pin your location on the map.");
             }
         }
 
@@ -95,6 +108,9 @@ namespace Application.Commands
                             UserId = userExists.Id,
                             OrganizationName = request.OrganizationName,
                             PhoneNumber = request.PhoneNumber,
+                            Address = request.Address,
+                            Latitude = request.Latitude,
+                            Longitude = request.Longitude,
                             IsApproved = false,
                             CreatedBy = request.Email,
                         };
@@ -131,6 +147,9 @@ namespace Application.Commands
                         UserId = user.Id,
                         OrganizationName = request.OrganizationName,
                         PhoneNumber = request.PhoneNumber,
+                        Address = request.Address,
+                        Latitude = request.Latitude,
+                        Longitude = request.Longitude,
                         IsApproved = false,
                         CreatedBy = request.Email,
                     });

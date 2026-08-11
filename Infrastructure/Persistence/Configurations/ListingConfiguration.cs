@@ -47,6 +47,10 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasConversion<string>();
 
+            builder.Property(l => l.Address).IsRequired().HasMaxLength(300);
+            builder.Property(l => l.Latitude).HasColumnType("decimal(9,6)");
+            builder.Property(l => l.Longitude).HasColumnType("decimal(9,6)");
+
             builder.Property(e => e.IsDeleted).HasDefaultValue(false);
 
             builder.HasMany(l => l.Ratings)

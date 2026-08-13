@@ -16,7 +16,8 @@ namespace Application.Commands
             Guid CustomerUserId,
             List<PlaceOrderItemRequest> Items,
             FulfilmentType FulfilmentType,
-            string? DeliveryAddress) : IRequest<BaseResponse<PlaceOrderResponse>>;
+            string? DeliveryAddress,
+            Guid? DeliveryZoneId) : IRequest<BaseResponse<PlaceOrderResponse>>;
 
         public class PlaceOrderValidator : AbstractValidator<PlaceOrderCommand>
         {
@@ -34,11 +35,16 @@ namespace Application.Commands
                 RuleFor(x => x.DeliveryAddress)
                     .NotEmpty().WithMessage("Delivery address is required for delivery orders.")
                     .When(x => x.FulfilmentType == FulfilmentType.Delivery);
+
+                RuleFor(x => x.DeliveryZoneId)
+                    .NotNull().WithMessage("Please select a delivery zone.")
+                    .When(x => x.FulfilmentType == FulfilmentType.Delivery);
             }
         }
 
         public class PlaceOrderHandler(
             ICustomerRepository customerRepository,
+            IVendorRepository vendorRepository,
             IListingRepository listingRepository,
             IOrderRepository orderRepository,
             IUnitOfWork unitOfWork,
@@ -79,9 +85,11 @@ namespace Application.Commands
 
                     if (distinctVendorIds.Count > 1)
                         return BaseResponse<PlaceOrderResponse>.Failure(
-                            "All items in one order must be from the same vendor. Please check out items from different vendors separately.");
+                            "All items in one order must be from the same food provider. Please check out items from different food providers separately.");
 
                     var vendor = validListings.FirstOrDefault()?.Vendor;
+                    if (vendor is not null)
+                        vendor = await vendorRepository.GetVendorWithZonesAsync(vendor.UserId);
 
                     var order = new Order
                     {
@@ -94,7 +102,6 @@ namespace Application.Commands
                     };
 
                     decimal totalAmount = 0;
-                    decimal totalDeliveryFee = 0;
                     var fulfilledListingNames = new List<string>();
                     var unfulfilledItems = new List<string>();
 
@@ -131,9 +138,6 @@ namespace Application.Commands
                         if (!listing.IsFree)
                             totalAmount += listing.Price!.Value * item.Quantity;
 
-                        if (request.FulfilmentType == FulfilmentType.Delivery)
-                            totalDeliveryFee += listing.DeliveryFee;
-
                         var newRemainingPortion = listing.RemainingPortion - item.Quantity;
                         var newStatus = newRemainingPortion <= 0 ? ListingStatus.Completed : listing.Status;
 
@@ -155,7 +159,33 @@ namespace Application.Commands
                             unfulfilledItems);
                     }
 
-                    order.TotalAmount = totalAmount + totalDeliveryFee;
+                    decimal deliveryFee = 0;
+
+                    if (request.FulfilmentType == FulfilmentType.Delivery)
+                    {
+                        if (vendor is null)
+                        {
+                            foreach (var (listingId, quantity) in decrementedItems)
+                                await listingRepository.RestoreStockAsync(listingId, quantity);
+
+                            return BaseResponse<PlaceOrderResponse>.Failure("Food Provider for this order could not be determined.");
+                        }
+
+                        var zone = vendor.DeliveryZones.FirstOrDefault(z => z.Id == request.DeliveryZoneId && !z.IsDeleted);
+                        if (zone is null)
+                        {
+                            foreach (var (listingId, quantity) in decrementedItems)
+                                await listingRepository.RestoreStockAsync(listingId, quantity);
+
+                            return BaseResponse<PlaceOrderResponse>.Failure(
+                                "The selected delivery zone is no longer available. Please choose another.");
+                        }
+
+                        deliveryFee = zone.Fee;
+                        order.DeliveryZoneName = zone.ZoneName;
+                    }
+
+                    order.TotalAmount = totalAmount + deliveryFee;
 
                     if (order.TotalAmount > 0 && string.IsNullOrWhiteSpace(vendor?.PaystackSubaccountCode))
                     {
@@ -225,6 +255,31 @@ namespace Application.Commands
                         catch
                         {
                             // Email failed but order succeeded
+                        }
+
+                        if (order.Status == OrderStatus.Confirmed)
+                        {
+                            string fulfilmentText = order.FulfilmentType == FulfilmentType.Delivery
+                                ? "arrange delivery" : "arrange pickup";
+
+                            await notificationService.SendNotificationAsync(
+                                customer.UserId,
+                                "Order Confirmed",
+                                $"Your order ({order.OrderNo}) is confirmed. {vendor.OrganizationName} will contact you shortly to {fulfilmentText}.",
+                                NotificationType.OrderStatusChanged);
+
+                            try
+                            {
+                                await emailService.SendOrderStatusEmailAsync(
+                                    customer.User.Email,
+                                    order.OrderNo,
+                                    "Order Confirmed",
+                                    $"Your order ({order.OrderNo}) is confirmed. {vendor.OrganizationName} will contact you shortly to {fulfilmentText}.");
+                            }
+                            catch
+                            {
+                                // Email failed but order succeeded
+                            }
                         }
                     }
 

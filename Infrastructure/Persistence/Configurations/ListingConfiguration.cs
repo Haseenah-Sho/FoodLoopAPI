@@ -34,22 +34,33 @@ namespace Infrastructure.Persistence.Configurations
                 .HasColumnType("decimal(18,2)")
                 .IsRequired(false);
 
-            builder.Property(l => l.DeliveryFee)
-                .HasColumnType("decimal(18,2)");
-
             builder.Property(l => l.PickUpAvailable)
                 .HasDefaultValue(false);
 
             builder.Property(l => l.DeliveryAvailable)
                 .HasDefaultValue(false);
 
-            builder.Property(l => l.Status)
+            builder.Property(l => l.Address)
+                .IsRequired()
+                .HasMaxLength(300);
+
+            builder.Property(l => l.FoodType)
                 .IsRequired()
                 .HasConversion<string>();
 
-            builder.Property(l => l.Address).IsRequired().HasMaxLength(300);
-            builder.Property(l => l.Latitude).HasColumnType("decimal(9,6)");
-            builder.Property(l => l.Longitude).HasColumnType("decimal(9,6)");
+            builder.Property(l => l.StorageInstruction)
+                .IsRequired()
+                .HasConversion<string>();
+
+            builder.Property(l => l.Allergens)
+                .HasMaxLength(300);
+
+            builder.Property(l => l.BestBeforeDate)
+                .IsRequired();
+
+            builder.Property(l => l.Status)
+                .IsRequired()
+                .HasConversion<string>();
 
             builder.Property(e => e.IsDeleted).HasDefaultValue(false);
 

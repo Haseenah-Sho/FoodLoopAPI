@@ -1,10 +1,12 @@
 ﻿using Application.Constants;
 using Application.Repositories;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Application.Commands.CancelOrder;
 using static Application.Commands.DispatchOrder;
+using static Application.Commands.FlagDescriptionMismatch;
 using static Application.Commands.MarkAsDelivered;
 using static Application.Commands.PlaceOrder;
 using static Application.Commands.ResumePayment;
@@ -13,6 +15,7 @@ using static Application.Queries.GetOrderByOrderNo;
 using static Application.Queries.GetOrderDetails;
 using static Application.Queries.GetOrders;
 using static Application.Queries.GetVendorOrders;
+using static Application.Commands.ConfirmDeliveryReceipt;
 
 namespace Host.Controllers
 {
@@ -30,7 +33,8 @@ namespace Host.Controllers
                 customerUserId,
                 request.Items,
                 request.FulfilmentType,
-                request.DeliveryAddress);
+                request.DeliveryAddress,
+                request.DeliveryZoneId);
 
             var result = await mediator.Send(command);
             return Ok(result);
@@ -117,10 +121,31 @@ namespace Host.Controllers
             return Ok(result);
         }
 
+        [HttpPost("{orderId}/flag-mismatch")]
+        [Authorize(Roles = AppRoles.Customer)]
+        public async Task<IActionResult> FlagMismatch(Guid orderId, [FromBody] FlagMismatchRequest request)
+        {
+            var customerUserId = currentUser.GetCurrentUser();
+            var command = new FlagDescriptionMismatchCommand(customerUserId, orderId, request.Note);
+            var result = await mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost("{orderId}/confirm-delivery")]
+        [Authorize(Roles = AppRoles.Customer)]
+        public async Task<IActionResult> ConfirmDelivery(Guid orderId)
+        {
+            var customerUserId = currentUser.GetCurrentUser();
+            var result = await mediator.Send(new ConfirmDeliveryReceiptCommand(customerUserId, orderId));
+            return Ok(result);
+        }
+
     }
 
     public record PlaceOrderRequest(
         List<PlaceOrderItemRequest> Items,
-        Domain.Enums.FulfilmentType FulfilmentType,
-        string? DeliveryAddress);
+        FulfilmentType FulfilmentType,
+        string? DeliveryAddress,
+        Guid? DeliveryZoneId);
+    public record FlagMismatchRequest(string Note);
 }

@@ -63,16 +63,12 @@ namespace Application.Commands
                     delivery.DateModified = DateTime.UtcNow;
                     deliveryRepository.Update(delivery);
 
-                    order.Status = OrderStatus.Completed;
-                    order.DateModified = DateTime.UtcNow;
-                    orderRepository.Update(order);
-
                     await unitOfWork.SaveAsync();
 
                     await notificationService.SendNotificationAsync(
                     order.Customer.UserId,
                     "Order Delivered",
-                    $"Your order ({order.OrderNo}) has been delivered. Enjoy your meal!",
+                    $"Your order ({order.OrderNo}) has been delivered. Please confirm you received it in the app.",
                     NotificationType.OrderStatusChanged);
 
                     try
@@ -81,15 +77,15 @@ namespace Application.Commands
                             order.Customer.User.Email,
                             order.OrderNo,
                             "Order Delivered",
-                            "Your order has been delivered. Enjoy your meal!");
+                            "Your order has delivered. Please open the app and confirm you received it.");
                     }
                     catch
                     {
-                        // Email failed but delivery completion succeeded
+                        // Email failed but delivery update succeeded
                     }
 
                     return BaseResponse<MarkAsDeliveredResponse>.Success(
-                        "Order delivered and completed.",
+                        "Marked as delivered. Waiting on the customer to confirm receipt.",
                         new MarkAsDeliveredResponse(order.Id, order.OrderNo, order.Status.ToString(), delivery.DeliveredAt));
                 }
                 catch (Exception ex)

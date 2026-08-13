@@ -53,5 +53,38 @@ namespace Infrastructure.Persistence.Repositories
             return await context.Set<Vendor>()
                 .AnyAsync(v => v.UserId == userId && !v.IsDeleted);
         }
+
+        public async Task<Vendor?> GetVendorWithZonesAsync(Guid userId)
+        {
+            return await context.Set<Vendor>()
+                .Include(v => v.User)
+                .Include(v => v.DeliveryZones.Where(z => !z.IsDeleted))
+                .FirstOrDefaultAsync(v => v.UserId == userId && !v.IsDeleted);
+        }
+
+        public async Task AddDeliveryZoneAsync(VendorDeliveryZone zone)
+        {
+            await context.Set<VendorDeliveryZone>().AddAsync(zone);
+        }
+
+        public async Task<Vendor?> GetVendorWithPickupPointsAsync(Guid userId)
+        {
+            return await context.Set<Vendor>()
+                .Include(v => v.User)
+                .Include(v => v.PickupPoints.Where(p => !p.IsDeleted))
+                .FirstOrDefaultAsync(v => v.UserId == userId && !v.IsDeleted);
+        }
+
+        public async Task AddPickupPointAsync(VendorPickupPoint point)
+        {
+            await context.Set<VendorPickupPoint>().AddAsync(point);
+        }
+
+        public async Task<Vendor?> GetVendorWithZonesByVendorIdAsync(Guid vendorId)
+        {
+            return await context.Set<Vendor>()
+                .Include(v => v.DeliveryZones.Where(z => !z.IsDeleted))
+                .FirstOrDefaultAsync(v => v.Id == vendorId && !v.IsDeleted);
+        }
     }
 }

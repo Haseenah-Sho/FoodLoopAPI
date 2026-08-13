@@ -12,8 +12,10 @@ namespace Application.Queries
             Guid OrderId,
             string OrderNo,
             string CustomerName,
+            string? CustomerPhoneNumber,
             decimal TotalAmount,
             string Status,
+            string? DeliveryStatus,
             string FulfilmentType,
             DateTime OrderedOn);
 
@@ -41,8 +43,10 @@ namespace Application.Queries
                             o.Id,
                             o.OrderNo,
                             o.Customer.User.FullName ?? o.Customer.User.UserName,
+                            o.Customer.PhoneNumber,
                             o.TotalAmount,
                             o.Status.ToString(),
+                            o.Delivery?.Status.ToString(),
                             o.FulfilmentType.ToString(),
                             o.DateCreated))
                         .ToList();

@@ -22,6 +22,7 @@ namespace Infrastructure.Persistence.Repositories
             return await context.Set<Order>()
                 .Include(o => o.Customer)
                     .ThenInclude(c => c.User)
+                .Include(o => o.Delivery)
                 .Include(o => o.OrderListings)
                     .ThenInclude(ol => ol.Listing)
                         .ThenInclude(l => l.Vendor)
@@ -30,7 +31,6 @@ namespace Infrastructure.Persistence.Repositories
                     .ThenInclude(ol => ol.Listing)
                         .ThenInclude(l => l.ListingImages)
                 .Include(o => o.Payment)
-                .Include(o => o.Delivery)
                 .FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted);
         }
 
@@ -52,6 +52,7 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(o => o.OrderListings)
                     .ThenInclude(ol => ol.Listing)
                 .Include(o => o.Payment)
+                .Include(o => o.Delivery)
                 .Where(o => o.CustomerId == customerId && !o.IsDeleted)
                 .OrderByDescending(o => o.DateCreated)
                 .ToListAsync();
@@ -62,6 +63,7 @@ namespace Infrastructure.Persistence.Repositories
             return await context.Set<Order>()
                 .Include(o => o.Customer).ThenInclude(c => c.User)
                 .Include(o => o.Payment)
+                .Include(o => o.Delivery)
                 .Include(o => o.OrderListings).ThenInclude(ol => ol.Listing)
                 .Where(o => o.OrderListings.Any(ol => ol.Listing.VendorId == vendorId) && !o.IsDeleted)
                 .ToListAsync();
@@ -85,6 +87,18 @@ namespace Infrastructure.Persistence.Repositories
                 .Where(o => o.Status == Domain.Enums.OrderStatus.Pending
                          && o.DateCreated <= cutoff
                          && !o.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<Order>> GetFlaggedOrdersAsync()
+        {
+            return await context.Set<Order>()
+                .Include(o => o.Customer)
+                    .ThenInclude(c => c.User)
+                .Include(o => o.OrderListings)
+                    .ThenInclude(ol => ol.Listing)
+                        .ThenInclude(l => l.Vendor)
+                .Where(o => o.DescriptionMismatchFlagged && !o.IsDeleted)
                 .ToListAsync();
         }
     }

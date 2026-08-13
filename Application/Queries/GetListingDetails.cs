@@ -10,6 +10,7 @@ namespace Application.Queries
 
         public record GetListingDetailsResponse(
             Guid ListingId,
+            Guid VendorId,
             string FoodName,
             string FoodDescription,
             int Quantity,
@@ -21,12 +22,13 @@ namespace Application.Queries
             bool DeliveryAvailable,
             DateTime PickUpStart,
             DateTime PickUpEnd,
-            decimal DeliveryFee,
             string Status,
             string VendorName,
             string Address,
-            decimal Latitude,
-            decimal Longitude,
+            string FoodType,
+            string StorageInstruction,
+            string? Allergens,
+            DateTime BestBeforeDate,
             double AverageRating,
             int RatingCount,
             List<string> ImageUrls);
@@ -50,6 +52,7 @@ namespace Application.Queries
 
                     var response = new GetListingDetailsResponse(
                         listing.Id,
+                        listing.VendorId,
                         listing.FoodName,
                         listing.FoodDescription,
                         listing.Quantity,
@@ -61,12 +64,13 @@ namespace Application.Queries
                         listing.DeliveryAvailable,
                         listing.PickUpStart,
                         listing.PickUpEnd,
-                        listing.DeliveryFee,
                         listing.Status.ToString(),
                         listing.Vendor.OrganizationName,
                         listing.Address,
-                        listing.Latitude,
-                        listing.Longitude,
+                        listing.FoodType.ToString(),
+                        listing.StorageInstruction.ToString(),
+                        listing.Allergens,
+                        listing.BestBeforeDate,
                         Math.Round(averageRating, 1),
                         ratings.Count,
                         listing.ListingImages

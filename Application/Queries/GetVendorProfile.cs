@@ -15,15 +15,12 @@ namespace Application.Queries
             string Email,
             bool IsApproved,
             string Address,
-            decimal Latitude,
-            decimal Longitude,
             bool HasPayoutAccountLinked,
             string? BankName,
             string? BankAccountNumber,
             string? AccountName);
 
-        public class GetVendorProfileHandler(
-            IVendorRepository vendorRepository)
+        public class GetVendorProfileHandler(IVendorRepository vendorRepository)
             : IRequestHandler<GetVendorProfileQuery, BaseResponse<VendorProfileResponse>>
         {
             public async Task<BaseResponse<VendorProfileResponse>> Handle(
@@ -45,8 +42,6 @@ namespace Application.Queries
                             vendor.User.Email,
                             vendor.IsApproved,
                             vendor.Address,
-                            vendor.Latitude,
-                            vendor.Longitude,
                             !string.IsNullOrWhiteSpace(vendor.PaystackSubaccountCode),
                             vendor.BankName,
                             vendor.BankAccountNumber,

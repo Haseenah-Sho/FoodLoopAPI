@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using static Application.Queries.GetAllCustomers;
 using static Application.Queries.GetAllListings;
 using static Application.Queries.GetAllVendors;
+using static Application.Queries.GetFlaggedOrders;
+using static Application.Commands.NotifyVendorOfMismatch;
 
 namespace Host.Controllers
 {
@@ -31,6 +33,20 @@ namespace Host.Controllers
         public async Task<IActionResult> GetAllListings()
         {
             var result = await mediator.Send(new GetAllListingsQuery());
+            return Ok(result);
+        }
+
+        [HttpGet("flagged-orders")]
+        public async Task<IActionResult> GetFlaggedOrders()
+        {
+            var result = await mediator.Send(new GetFlaggedOrdersQuery());
+            return Ok(result);
+        }
+
+        [HttpPost("flagged-orders/{orderId}/notify-vendor")]
+        public async Task<IActionResult> NotifyVendorOfMismatch(Guid orderId)
+        {
+            var result = await mediator.Send(new NotifyVendorOfMismatchCommand(orderId));
             return Ok(result);
         }
     }

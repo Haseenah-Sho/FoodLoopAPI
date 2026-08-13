@@ -29,9 +29,18 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasConversion<string>();
 
+            builder.Property(o => o.DeliveryZoneName)
+                .HasMaxLength(100);
+
             builder.Property(o => o.DeliveryAddress)
                 .HasMaxLength(300)
                 .IsRequired(false);
+
+            builder.Property(o => o.DescriptionMismatchFlagged)
+                .HasDefaultValue(false);
+
+            builder.Property(o => o.DescriptionMismatchNote)
+                .HasMaxLength(500);
 
             builder.Property(e => e.IsDeleted).HasDefaultValue(false);
 

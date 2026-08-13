@@ -25,10 +25,12 @@ namespace Application.Commands
             public bool DeliveryAvailable { get; set; }
             public DateTime PickUpStart { get; set; }
             public DateTime PickUpEnd { get; set; }
-            public decimal DeliveryFee { get; set; }
-            public string? Address { get; set; }
-            public decimal? Latitude { get; set; }
-            public decimal? Longitude { get; set; }
+            public string Address { get; set; } = default!;
+            public FoodType FoodType { get; set; }
+            public StorageInstruction StorageInstruction { get; set; }
+            public string? Allergens { get; set; }
+            public DateTime BestBeforeDate { get; set; }
+            public bool AttestationConfirmed { get; set; }
             public List<IFormFile> Images { get; set; } = new();
         }
 
@@ -42,6 +44,7 @@ namespace Application.Commands
 
                 RuleFor(x => x.FoodDescription)
                     .NotEmpty().WithMessage("Food description is required.")
+                    .MinimumLength(20).WithMessage("Please give a fuller description — at least 20 characters, describing what it actually is and how it was made or stored.")
                     .MaximumLength(1000).WithMessage("Description cannot exceed 1000 characters.");
 
                 RuleFor(x => x.Quantity)
@@ -61,19 +64,25 @@ namespace Application.Commands
                     .Must(x => x.PickUpAvailable || x.DeliveryAvailable)
                     .WithMessage("At least one fulfilment option (pickup or delivery) must be available.");
 
-                RuleFor(x => x.DeliveryFee)
-                    .GreaterThanOrEqualTo(0).WithMessage("Delivery fee cannot be negative.")
-                    .When(x => x.DeliveryAvailable);
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Please enter the address where this food actually is.")
+                    .MaximumLength(300).WithMessage("Address cannot exceed 300 characters.");
+
+                RuleFor(x => x.FoodType)
+                    .IsInEnum().WithMessage("Please select what kind of food this is.");
+
+                RuleFor(x => x.StorageInstruction)
+                    .IsInEnum().WithMessage("Please select how this food should be stored or served.");
+
+                RuleFor(x => x.BestBeforeDate)
+                    .GreaterThan(DateTime.UtcNow).WithMessage("Best before date/time must be in the future.");
+
+                RuleFor(x => x.AttestationConfirmed)
+                    .Equal(true).WithMessage("Please confirm the description accurately reflects this food's condition.");
 
                 RuleFor(x => x.Images)
                     .NotEmpty().WithMessage("At least one image is required.")
                     .Must(images => images.Count <= 5).WithMessage("You can upload a maximum of 5 images.");
-
-                // If a location override is given, it must be complete — no half-set coordinates.
-                RuleFor(x => x)
-                    .Must(x => !string.IsNullOrWhiteSpace(x.Address) == x.Latitude.HasValue
-                            && x.Latitude.HasValue == x.Longitude.HasValue)
-                    .WithMessage("If you set a different location for this item, provide the address and pin both together.");
             }
         }
 
@@ -93,11 +102,11 @@ namespace Application.Commands
                 {
                     var vendor = await vendorRepository.GetVendorByUserIdAsync(request.VendorUserId);
                     if (vendor is null)
-                        return BaseResponse<CreateListingResponse>.Failure("Vendor profile not found.");
+                        return BaseResponse<CreateListingResponse>.Failure("profile not found.");
 
                     if (!vendor.IsApproved)
                         return BaseResponse<CreateListingResponse>.Failure(
-                            "Your vendor account is not yet approved. You cannot create listings until approved by admin.");
+                            "Your account is not yet approved. You cannot post food items until approved by admin.");
 
                     foreach (var image in request.Images)
                     {
@@ -105,9 +114,6 @@ namespace Application.Commands
                         if (!isValid)
                             return BaseResponse<CreateListingResponse>.Failure(errorMessage!);
                     }
-
-                    bool hasOwnLocation = !string.IsNullOrWhiteSpace(request.Address)
-                        && request.Latitude.HasValue && request.Longitude.HasValue;
 
                     var listing = new Listing
                     {
@@ -123,10 +129,11 @@ namespace Application.Commands
                         DeliveryAvailable = request.DeliveryAvailable,
                         PickUpStart = request.PickUpStart,
                         PickUpEnd = request.PickUpEnd,
-                        DeliveryFee = request.DeliveryAvailable ? request.DeliveryFee : 0,
-                        Address = hasOwnLocation ? request.Address! : vendor.Address,
-                        Latitude = hasOwnLocation ? request.Latitude!.Value : vendor.Latitude,
-                        Longitude = hasOwnLocation ? request.Longitude!.Value : vendor.Longitude,
+                        Address = request.Address,
+                        FoodType = request.FoodType,
+                        StorageInstruction = request.StorageInstruction,
+                        Allergens = string.IsNullOrWhiteSpace(request.Allergens) ? null : request.Allergens,
+                        BestBeforeDate = request.BestBeforeDate,
                         Status = ListingStatus.Active,
                         CreatedBy = vendor.User.Email,
                     };
@@ -135,7 +142,7 @@ namespace Application.Commands
                     {
                         var image = request.Images[i];
                         using var stream = image.OpenReadStream();
-                        var imageUrl = await fileUploadService.UploadAsync(stream, image.FileName, "listings");
+                        var imageUrl = await fileUploadService.UploadAsync(stream, image.FileName, "food items");
 
                         listing.ListingImages.Add(new ListingImage
                         {
@@ -155,25 +162,19 @@ namespace Application.Commands
                         listing.ListingImages.FirstOrDefault(li => li.IsPrimary)?.ImageUrl);
 
                     return BaseResponse<CreateListingResponse>.Success(
-                        "Listing created successfully.",
+                        "Food Items posted successfully.",
                         new CreateListingResponse(
-                            listing.Id,
-                            listing.FoodName,
-                            listing.Status.ToString(),
+                            listing.Id, listing.FoodName, listing.Status.ToString(),
                             listing.ListingImages.Select(li => li.ImageUrl).ToList()));
                 }
                 catch (Exception ex)
                 {
                     return BaseResponse<CreateListingResponse>.Failure(
-                        $"An error occurred while creating the listing: {ex.Message}");
+                        $"An error occurred while posting the food items: {ex.Message}");
                 }
             }
         }
 
-        public record CreateListingResponse(
-            Guid ListingId,
-            string FoodName,
-            string Status,
-            List<string> ImageUrls);
+        public record CreateListingResponse(Guid ListingId, string FoodName, string Status, List<string> ImageUrls);
     }
 }

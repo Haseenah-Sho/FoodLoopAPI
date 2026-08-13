@@ -17,12 +17,13 @@ namespace Domain.Entities
         public bool DeliveryAvailable { get; set; }
         public DateTime PickUpStart { get; set; }
         public DateTime PickUpEnd { get; set; }
-        public decimal DeliveryFee { get; set; }
         public ListingStatus Status { get; set; }
         public ICollection<Rating> Ratings { get; set; } = new HashSet<Rating>();
         public ICollection<ListingImage> ListingImages { get; set; } = new HashSet<ListingImage>();
         public string Address { get; set; } = default!;
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public FoodType FoodType { get; set; }
+        public StorageInstruction StorageInstruction { get; set; }
+        public string? Allergens { get; set; }
+        public DateTime BestBeforeDate { get; set; }
     }
 }

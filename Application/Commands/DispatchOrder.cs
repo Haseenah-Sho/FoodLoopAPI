@@ -81,9 +81,8 @@ namespace Application.Commands
                             DeliveryAddress = order.DeliveryAddress ?? string.Empty,
                             Status = DeliveryStatus.Dispatched,
                             DispatchedAt = DateTime.UtcNow,
-                            Fee = order.OrderListings
-                                .Where(ol => ol.Listing.VendorId == vendor.Id)
-                                .Sum(ol => ol.Listing.DeliveryFee),
+                            Fee = order.TotalAmount - order.OrderListings
+                                .Sum(ol => ol.Listing.IsFree ? 0 : (ol.Listing.Price ?? 0) * ol.Quantity),
                             CreatedBy = vendor.User.Email,
                         };
 

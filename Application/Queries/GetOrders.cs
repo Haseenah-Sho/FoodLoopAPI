@@ -13,6 +13,7 @@ namespace Application.Queries
             string OrderNo,
             decimal TotalAmount,
             string Status,
+            string? DeliveryStatus,
             string FulfilmentType,
             DateTime OrderedOn,
             List<string> ListingNames);
@@ -39,6 +40,7 @@ namespace Application.Queries
                         o.OrderNo,
                         o.TotalAmount,
                         o.Status.ToString(),
+                        o.Delivery?.Status.ToString(),
                         o.FulfilmentType.ToString(),
                         o.DateCreated,
                         o.OrderListings.Select(ol => ol.Listing.FoodName).ToList()

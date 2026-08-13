@@ -2,7 +2,6 @@
 using Application.Repositories;
 using FluentValidation;
 using MediatR;
-using static Application.Commands.RegisterVendor;
 
 namespace Application.Commands
 {
@@ -12,9 +11,7 @@ namespace Application.Commands
             Guid UserId,
             string OrganizationName,
             string PhoneNumber,
-            string Address,
-            decimal Latitude,
-            decimal Longitude) : IRequest<BaseResponse<UpdateVendorProfileResponse>>;
+            string Address) : IRequest<BaseResponse<UpdateVendorProfileResponse>>;
 
         public class UpdateVendorProfileValidator : AbstractValidator<UpdateVendorProfileCommand>
         {
@@ -28,9 +25,6 @@ namespace Application.Commands
                 RuleFor(x => x.Address)
                     .NotEmpty().WithMessage("Address is required.")
                     .MaximumLength(300).WithMessage("Address cannot exceed 300 characters.");
-
-                RuleFor(x => x.Latitude).NotEqual(0).WithMessage("Please pin your location on the map.");
-                RuleFor(x => x.Longitude).NotEqual(0).WithMessage("Please pin your location on the map.");
             }
         }
 
@@ -54,8 +48,6 @@ namespace Application.Commands
                     vendor.OrganizationName = request.OrganizationName;
                     vendor.PhoneNumber = request.PhoneNumber;
                     vendor.Address = request.Address;
-                    vendor.Latitude = request.Latitude;
-                    vendor.Longitude = request.Longitude;
                     vendor.DateModified = DateTime.UtcNow;
 
                     string message = "Profile updated successfully.";
@@ -72,13 +64,7 @@ namespace Application.Commands
                     return BaseResponse<UpdateVendorProfileResponse>.Success(
                         message,
                         new UpdateVendorProfileResponse(
-                            vendor.Id,
-                            vendor.OrganizationName,
-                            vendor.PhoneNumber,
-                            vendor.Address,
-                            vendor.Latitude,
-                            vendor.Longitude,
-                            vendor.IsApproved));
+                            vendor.Id, vendor.OrganizationName, vendor.PhoneNumber, vendor.Address, vendor.IsApproved));
                 }
                 catch (Exception ex)
                 {
@@ -89,12 +75,6 @@ namespace Application.Commands
         }
 
         public record UpdateVendorProfileResponse(
-            Guid Id,
-            string OrganizationName,
-            string PhoneNumber,
-            string Address,
-            decimal Latitude,
-            decimal Longitude,
-            bool IsApproved);
+            Guid Id, string OrganizationName, string PhoneNumber, string Address, bool IsApproved);
     }
 }

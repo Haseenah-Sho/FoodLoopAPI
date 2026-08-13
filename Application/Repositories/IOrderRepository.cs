@@ -12,6 +12,7 @@ namespace Application.Repositories
         Task<ICollection<Order>> GetOrdersByVendorAsync(Guid vendorId);
         Task<ICollection<Order>> GetAllOrdersAsync();
         Task<ICollection<Order>> GetStalePendingOrdersAsync(TimeSpan olderThan);
+        Task<ICollection<Order>> GetFlaggedOrdersAsync();
 
     }
 }

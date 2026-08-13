@@ -19,9 +19,7 @@ namespace Application.Commands
             string Email,
             string Password,
             string ConfirmPassword,
-            string Address,
-            decimal Latitude,
-            decimal Longitude) : IRequest<BaseResponse<RegisterVendorResponse>>;
+            string Address) : IRequest<BaseResponse<RegisterVendorResponse>>;
 
         public class RegisterVendorValidator : AbstractValidator<RegisterVendorCommand>
         {
@@ -51,12 +49,6 @@ namespace Application.Commands
                 RuleFor(x => x.Address)
                     .NotEmpty().WithMessage("Address is required.")
                     .MaximumLength(300).WithMessage("Address cannot exceed 300 characters.");
-
-                RuleFor(x => x.Latitude)
-                    .NotEqual(0).WithMessage("Please pin your location on the map.");
-
-                RuleFor(x => x.Longitude)
-                    .NotEqual(0).WithMessage("Please pin your location on the map.");
             }
         }
 
@@ -71,8 +63,8 @@ namespace Application.Commands
             : IRequestHandler<RegisterVendorCommand, BaseResponse<RegisterVendorResponse>>
         {
             public async Task<BaseResponse<RegisterVendorResponse>> Handle(
-    RegisterVendorCommand request,
-    CancellationToken cancellationToken)
+                RegisterVendorCommand request,
+                CancellationToken cancellationToken)
             {
                 try
                 {
@@ -109,8 +101,6 @@ namespace Application.Commands
                             OrganizationName = request.OrganizationName,
                             PhoneNumber = request.PhoneNumber,
                             Address = request.Address,
-                            Latitude = request.Latitude,
-                            Longitude = request.Longitude,
                             IsApproved = false,
                             CreatedBy = request.Email,
                         };
@@ -148,8 +138,6 @@ namespace Application.Commands
                         OrganizationName = request.OrganizationName,
                         PhoneNumber = request.PhoneNumber,
                         Address = request.Address,
-                        Latitude = request.Latitude,
-                        Longitude = request.Longitude,
                         IsApproved = false,
                         CreatedBy = request.Email,
                     });

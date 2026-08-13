@@ -21,15 +21,15 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(v => v.IsApproved)
                 .HasDefaultValue(false);
 
+            builder.Property(v => v.Address)
+                .IsRequired()
+                .HasMaxLength(300);
+
             builder.Property(v => v.BankCode).HasMaxLength(10);
             builder.Property(v => v.BankName).HasMaxLength(100);
             builder.Property(v => v.BankAccountNumber).HasMaxLength(10);
             builder.Property(v => v.AccountName).HasMaxLength(200);
             builder.Property(v => v.PaystackSubaccountCode).HasMaxLength(100);
-
-            builder.Property(v => v.Address).IsRequired().HasMaxLength(300);
-            builder.Property(v => v.Latitude).HasColumnType("decimal(9,6)");
-            builder.Property(v => v.Longitude).HasColumnType("decimal(9,6)");
 
             builder.Property(e => e.IsDeleted).HasDefaultValue(false);
 

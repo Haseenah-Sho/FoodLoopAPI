@@ -20,8 +20,9 @@ namespace Application.Queries
             DateTime PickUpStart,
             DateTime PickUpEnd,
             string VendorName,
-            decimal Latitude,
-            decimal Longitude,
+            string Address,
+            string FoodType,
+            DateTime BestBeforeDate,
             string? PrimaryImageUrl);
 
         public class GetListingsHandler(
@@ -51,14 +52,15 @@ namespace Application.Queries
                         l.PickUpStart,
                         l.PickUpEnd,
                         l.Vendor.OrganizationName,
-                        l.Latitude,
-                        l.Longitude,
+                        l.Address,
+                        l.FoodType.ToString(),
+                        l.BestBeforeDate,
                         l.ListingImages.FirstOrDefault(li => li.IsPrimary)?.ImageUrl
                             ?? l.ListingImages.FirstOrDefault()?.ImageUrl
                     )).ToList();
 
                     return BaseResponse<ICollection<GetListingsResponse>>.Success(
-                        "Listings retrieved successfully.", response);
+                        "Food items retrieved successfully.", response);
                 }
                 catch (Exception ex)
                 {

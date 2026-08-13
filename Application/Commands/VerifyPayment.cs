@@ -76,10 +76,10 @@ namespace Application.Commands
                         if (vendor is not null)
                         {
                             await notificationService.SendNotificationAsync(
-                                vendor.UserId,
-                                "New Order Received",
-                                $"You have a new order ({order.OrderNo}) — payment confirmed.",
-                                NotificationType.NewOrder);
+                                 vendor.UserId,
+                                 "New Order Received",
+                                 $"You have a new order ({order.OrderNo}) — payment confirmed.",
+                                 NotificationType.NewOrder);
 
                             try
                             {
@@ -88,6 +88,28 @@ namespace Application.Commands
                                     order.OrderNo,
                                     "New Order Received",
                                     $"You have a new paid order ({order.OrderNo}). Payment has been confirmed.");
+                            }
+                            catch
+                            {
+                                // Email failed but verification succeeded
+                            }
+
+                            string fulfilmentText = order.FulfilmentType == FulfilmentType.Delivery
+                                ? "arrange delivery" : "arrange pickup";
+
+                            await notificationService.SendNotificationAsync(
+                                order.Customer.UserId,
+                                "Order Confirmed",
+                                $"Your payment for order ({order.OrderNo}) was successful. {vendor.OrganizationName} will contact you shortly to {fulfilmentText}.",
+                                NotificationType.OrderStatusChanged);
+
+                            try
+                            {
+                                await emailService.SendOrderStatusEmailAsync(
+                                    order.Customer.User.Email,
+                                    order.OrderNo,
+                                    "Order Confirmed",
+                                    $"Your payment for order ({order.OrderNo}) was successful. {vendor.OrganizationName} will contact you shortly to {fulfilmentText}.");
                             }
                             catch
                             {

@@ -11,5 +11,10 @@ namespace Application.Repositories
         Task<ICollection<Vendor>> GetPendingVendorsAsync();
         Task<bool> IsExistAsync(Guid userId);
         void Update(Vendor vendor);
+        Task<Vendor?> GetVendorWithZonesAsync(Guid userId);
+        Task AddDeliveryZoneAsync(VendorDeliveryZone zone);
+        Task<Vendor?> GetVendorWithPickupPointsAsync(Guid userId);
+        Task AddPickupPointAsync(VendorPickupPoint point);
+        Task<Vendor?> GetVendorWithZonesByVendorIdAsync(Guid vendorId);
     }
 }

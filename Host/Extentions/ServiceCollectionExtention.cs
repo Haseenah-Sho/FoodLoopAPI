@@ -1,5 +1,6 @@
 ﻿using Application.Common.Behaviours.ValidationBehaviour;
 using Application.Common.Models;
+using Application.Common.Settings;
 using Application.Repositories;
 using Application.Services;
 using Domain.Entities;

@@ -36,6 +36,7 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await context.Set<Vendor>()
                 .Include(v => v.User)
+                .Include(v => v.Listings)
                 .Where(v => !v.IsDeleted)
                 .ToListAsync();
         }

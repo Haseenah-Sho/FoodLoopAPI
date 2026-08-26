@@ -61,7 +61,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Delivery", b =>
@@ -111,7 +111,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("Deliveries");
+                    b.ToTable("Deliveries", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Listing", b =>
@@ -209,7 +209,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("Listings");
+                    b.ToTable("Listings", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.ListingImage", b =>
@@ -248,7 +248,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ListingId");
 
-                    b.ToTable("ListingImages");
+                    b.ToTable("ListingImages", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
@@ -301,7 +301,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -374,7 +374,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("OrderNo")
                         .IsUnique();
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderListing", b =>
@@ -392,7 +392,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ListingId");
 
-                    b.ToTable("OrderListings");
+                    b.ToTable("OrderListings", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Payment", b =>
@@ -443,7 +443,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Rating", b =>
@@ -486,7 +486,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ListingId");
 
-                    b.ToTable("Ratings");
+                    b.ToTable("Ratings", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>
@@ -520,7 +520,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -590,7 +590,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Strikes");
+                    b.ToTable("Strikes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -649,7 +649,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
@@ -679,7 +679,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
 
                     b.HasData(
                         new
@@ -758,7 +758,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Vendors");
+                    b.ToTable("Vendors", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.VendorDeliveryZone", b =>
@@ -797,7 +797,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("VendorDeliveryZone");
+                    b.ToTable("VendorDeliveryZone", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.VendorPickupPoint", b =>
@@ -838,7 +838,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("VendorPickupPoint");
+                    b.ToTable("VendorPickupPoint", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Customer", b =>
